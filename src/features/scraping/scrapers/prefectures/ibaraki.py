@@ -120,6 +120,9 @@ class IbarakiScraper(AbstractPrefectureScraper):
                     )
 
             page_num = start_page
+            previous_links_set: Optional[set[str]] = None  # 前ページのリンクセット
+            duplicate_page_count = 0  # 重複ページカウント
+            max_duplicate_pages = 3  # 連続重複ページ数の上限
 
             # ページネーションループ
             with tqdm(desc="一覧巡回", initial=start_page - 1) as pbar:
@@ -131,7 +134,7 @@ class IbarakiScraper(AbstractPrefectureScraper):
                     # 詳細ページのリンクを取得
                     detail_links = self.get_detail_links(page_num)
 
-                    # auto_detectの場合、空ページをカウント
+                    # auto_detectの場合、空ページと重複ページをチェック
                     if auto_detect:
                         if not detail_links:
                             empty_page_count += 1
@@ -148,6 +151,25 @@ class IbarakiScraper(AbstractPrefectureScraper):
                         else:
                             # リンクが見つかったらカウントをリセット
                             empty_page_count = 0
+
+                            # 重複ページ検出（前ページと完全に同じリンクセットの場合）
+                            current_links_set = set(detail_links)
+                            if previous_links_set is not None and current_links_set == previous_links_set:
+                                duplicate_page_count += 1
+                                logger.info(
+                                    f"Page {page_num} has identical links as previous page "
+                                    f"(duplicate count: {duplicate_page_count}/{max_duplicate_pages})"
+                                )
+                                if duplicate_page_count >= max_duplicate_pages:
+                                    logger.info(
+                                        f"Reached {max_duplicate_pages} consecutive duplicate pages. "
+                                        "Last page is repeating. Stopping scraping."
+                                    )
+                                    break
+                            else:
+                                duplicate_page_count = 0  # 異なるリンクならリセット
+
+                            previous_links_set = current_links_set
 
                     # レート制限
                     self.rate_limiter.wait()

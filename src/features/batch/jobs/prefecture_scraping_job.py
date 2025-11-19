@@ -24,7 +24,7 @@ class PrefectureScrapingJob:
     def __init__(
         self,
         scraper: AbstractPrefectureScraper,
-        geocoding_service: GeocodingService,
+        geocoding_service: Optional[GeocodingService],
         shop_repository: ShopRepository,
         history_repository: HistoryRepository,
         progress_repository: ProgressRepository,
@@ -251,6 +251,17 @@ class PrefectureScrapingJob:
         Returns:
             dict[str, int]: ジオコーディング結果
         """
+        if not self.geocoding_service:
+            logger.info(
+                "Geocoding is disabled; skipping geocoding for current batch"
+            )
+            return {
+                "success": 0,
+                "failure": 0,
+                "skipped": len(shops),
+                "total": len(shops),
+            }
+
         try:
             result = self.geocoding_service.geocode_shops_batch(
                 shops, show_progress=show_progress
@@ -263,7 +274,12 @@ class PrefectureScrapingJob:
 
         except Exception as e:
             logger.error(f"Geocoding failed: {e}")
-            return {"success": 0, "failure": len(shops), "skipped": 0, "total": len(shops)}
+            return {
+                "success": 0,
+                "failure": len(shops),
+                "skipped": 0,
+                "total": len(shops),
+            }
 
     def _save_shops(self, shops: list) -> dict[str, int]:
         """

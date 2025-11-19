@@ -14,9 +14,11 @@ scraping:
 
   pagination:
     start_page: 1
-    end_page: 247  # 参考値（2025-11時点）auto_detect=falseの場合のみ使用
+    end_page: 500  # 安全な上限値（重複検出で自動停止するため大きめに設定）
     auto_detect: true  # trueの場合、ページを自動検出（end_pageは無視）
     max_empty_pages: 10  # auto_detect時、連続で空のページがこの回数続いたら終了
+    # 注意: 茨城県のサイトは存在しないページでも最後のページを返すため、
+    # 重複ページ検出ロジック（連続3ページ同一リンク）で自動停止します
 
   session:
     required: true

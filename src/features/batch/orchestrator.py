@@ -47,7 +47,7 @@ class BatchOrchestrator:
         self.history_repository = HistoryRepository(self.firestore_client)
         self.progress_repository = ProgressRepository(self.firestore_client)
 
-        # ジオコーディングサービスを初期化
+        # ジオコーディングサービスを初期化（任意）
         self.geocoding_service = self._create_geocoding_service()
 
         # Slack通知プロバイダーを初期化
@@ -118,18 +118,16 @@ class BatchOrchestrator:
 
         logger.info("All prefecture scraping jobs completed")
 
-    def _create_geocoding_service(self) -> GeocodingService:
+    def _create_geocoding_service(self) -> Optional[GeocodingService]:
         """
         ジオコーディングサービスを作成
 
         Returns:
-            GeocodingService: ジオコーディングサービス
+            Optional[GeocodingService]: ジオコーディングサービス
         """
         if not self.settings.geocoding_enabled:
-            logger.info("Geocoding is disabled")
-            # ダミーサービス（何もしない）を返すこともできますが、
-            # 今回はNoneを許可しないため、有効化されていない場合でもサービスを作成
-            # 実際の使用時にスキップする設計も考えられます
+            logger.info("Geocoding is disabled via settings; skipping service initialization")
+            return None
 
         # Google Maps API Keyを取得
         api_key = self.settings.google_maps_api_key
