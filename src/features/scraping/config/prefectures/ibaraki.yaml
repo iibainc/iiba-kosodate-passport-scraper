@@ -14,9 +14,9 @@ scraping:
 
   pagination:
     start_page: 1
-    end_page: 247  # auto_detect=falseの場合のみ使用
-    auto_detect: false  # trueの場合、ページを自動検出（end_pageは無視）
-    max_empty_pages: 3  # auto_detect時、連続で空のページがこの回数続いたら終了
+    end_page: 247  # 参考値（2025-11時点）auto_detect=falseの場合のみ使用
+    auto_detect: true  # trueの場合、ページを自動検出（end_pageは無視）
+    max_empty_pages: 10  # auto_detect時、連続で空のページがこの回数続いたら終了
 
   session:
     required: true
