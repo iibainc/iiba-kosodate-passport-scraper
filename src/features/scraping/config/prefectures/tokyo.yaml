@@ -1,68 +1,53 @@
-# 東京都の子育て支援パスポートスクレイピング設定
-
 prefecture:
-  code: "13"  # TODO: 東京都の都道府県コードを設定
-  name: "東京都"  # TODO: 都道府県名を設定
-  name_en: "tokyo"  # TODO: 英語名を設定
+  code: "13"
+  name: "東京都"
+  name_en: "tokyo"
 
 scraping:
-  # TODO: 東京都の子育て支援パスポートサイトのベースURLを設定
-  base_url: "https://www.example-tokyo-kosodate.jp"
+  # 東京都はCSVダウンロード方式
+  type: "csv"  # html or csv
 
-  # TODO: 文字エンコーディングを確認（多くはutf-8だが、shift_jisの場合もある）
-  encoding: "utf-8"  # または "shift_jis"
+  csv:
+    url: "https://www.fukushi.metro.tokyo.lg.jp/documents/d/fukushi/071104_tokyoto_shoplist_shoplist_202511041034299-csv"
+    encoding: "shift_jis"
 
-  urls:
-    # TODO: 各ページのURL構造を調査して設定
-    # 検索フォームページ（セッション開始用）
-    search_form: "/search?category=kosodate"
+    # CSVカラムマッピング（0-indexed）
+    columns:
+      shop_id: 0          # 店舗ID
+      name: 1             # 店舗（施設）名
+      name_kana: 2        # 店舗（施設）名　フリガナ
+      postal_code: 3      # 郵便番号
+      prefecture_code: 4  # 都道府県コード
+      prefecture: 5       # 都道府県
+      city_code: 6        # 区市町村コード
+      city: 7             # 区市町村
+      address1: 8         # 住所１
+      address2: 9         # ビル名等
+      phone: 10           # 電話番号
+      website: 11         # ホームページアドレス
+      business_hours: 12  # 営業時間
+      closed_days: 13     # 定休日
+      access: 14          # 交通アクセス
+      parking: 15         # 駐車場の有無
+      genre1: 16          # 業種 ジャンル１
+      genre2: 17          # 業種 ジャンル２
+      genre3: 18          # 業種 ジャンル３
+      genre_detail: 19    # 具体的な業種
 
-    # 一覧ページ（ページ番号付き）
-    # {page}の部分がページ番号に置き換わります
-    list_page: "/list?page={page}"
+      # サービス内容（○がついている項目）
+      service_milk: 20         # 1 粉ミルクのお湯の提供
+      service_diaper: 22       # 2 おむつ替えスペースあり
+      service_baby_keep: 24    # 3 トイレにベビーキープ設置
+      service_nursing: 26      # 4 授乳スペースあり
+      service_kids_space: 28   # 5 キッズスペースあり
+      service_stroller: 30     # 6 ベビーカー入店可能
+      service_gift: 32         # 7 景品の提供
+      service_points: 36       # 8 ポイントの付与
+      service_discount: 40     # 9 商品の割引
 
-    # 詳細ページのURLパターン（正規表現）
-    # 例: "/detail/12345" の場合は "/detail/\\d+"
-    detail_pattern: "/detail/\\d+"
-
-  pagination:
-    start_page: 1  # 開始ページ番号
-
-    # TODO: 以下のいずれかを選択
-    # 【方法A】固定ページ数の場合（事前に総ページ数がわかる場合）
-    end_page: 100  # 最終ページ番号
-    auto_detect: false
-
-    # 【方法B】自動検出の場合（ページ数が不明な場合）
-    # end_page: 999  # 使用されない（auto_detectがtrueの場合）
-    # auto_detect: true
-    # max_empty_pages: 3  # 連続でこの回数空ページが続いたら終了
-
-  session:
-    # TODO: セッショントークンが必要か確認
-    # 不要な場合はfalseに設定
-    required: false  # または true
-
-    # セッショントークンの抽出パターン（required=trueの場合のみ）
-    # 例: "token=abc123" の場合は "token=([A-Za-z0-9]+)"
-    token_pattern: "session_id=([A-Za-z0-9_-]+)"
-
-  selectors:
-    # TODO: HTMLの構造を調査して、適切なCSSセレクタを設定
-    # 店舗名の取得（複数指定可能。最初にマッチしたものを使用）
-    shop_name:
-      - "h2.shop-title"
-      - "h1"
-      - ".title"
-
-    # テーブル形式の情報（<table><tr>形式）
-    table: "table.shop-info tr"
-
-    # 定義リスト形式の情報（<dl><dt><dd>形式）
-    dl: "dl.shop-details"
+      # 優待内容の詳細
+      discount_detail: 41      # 商品の割引の具体的な内容
 
   rate_limit:
-    # TODO: サイトへの負荷を考慮してレート制限を設定
-    # sleep_min～sleep_maxの間でランダムに待機
-    sleep_min: 1.0  # 最小待機時間（秒）
-    sleep_max: 2.0  # 最大待機時間（秒）
+    sleep_min: 0.1
+    sleep_max: 0.3
