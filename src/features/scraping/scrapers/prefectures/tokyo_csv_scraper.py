@@ -194,3 +194,27 @@ class TokyoCsvScraper(AbstractPrefectureScraper):
 
         except Exception as e:
             raise ParsingError(f"Failed to parse CSV: {e}") from e
+
+    def get_detail_links(self, page_num: int) -> list[str]:
+        """
+        CSV方式では使用しない（抽象メソッドの実装のみ）
+
+        Args:
+            page_num: ページ番号（使用しない）
+
+        Returns:
+            list[str]: 空のリスト
+        """
+        return []
+
+    def parse_detail_page(self, url: str) -> Optional[Shop]:
+        """
+        CSV方式では使用しない（抽象メソッドの実装のみ）
+
+        Args:
+            url: 詳細ページURL（使用しない）
+
+        Returns:
+            Optional[Shop]: None
+        """
+        return None
