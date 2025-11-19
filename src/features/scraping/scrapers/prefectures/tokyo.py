@@ -103,7 +103,6 @@ class TokyoScraper(AbstractPrefectureScraper):
             all_shops: list[Shop] = []
             current_batch: list[Shop] = []
             seen_urls: set[str] = set()
-            shop_counter = 1
 
             pagination = self.config["scraping"]["pagination"]
             start_page = resume_from_page if resume_from_page else pagination["start_page"]
@@ -172,15 +171,13 @@ class TokyoScraper(AbstractPrefectureScraper):
                         seen_urls.add(detail_url)
 
                         # 店舗情報を取得
-                        shop_id = self.generate_shop_id(shop_counter)
                         shop = self.parse_detail_page(detail_url)
 
                         if shop:
-                            # shop_idを設定
-                            shop.shop_id = shop_id
+                            # shop_idを設定（URLベースで生成）
+                            shop.shop_id = self.generate_shop_id(detail_url)
                             all_shops.append(shop)
                             current_batch.append(shop)
-                            shop_counter += 1
 
                             # バッチサイズに達したらコールバックを実行
                             if batch_callback and len(current_batch) >= batch_size:

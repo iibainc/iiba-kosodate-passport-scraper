@@ -1,4 +1,5 @@
 """スクレイパーの基底クラス"""
+import hashlib
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
@@ -77,17 +78,21 @@ class AbstractPrefectureScraper(ABC):
         """
         pass
 
-    def generate_shop_id(self, index: int) -> str:
+    def generate_shop_id(self, detail_url: str) -> str:
         """
-        店舗IDを生成
+        店舗IDを生成（URLのハッシュ値を使用）
+
+        同じ店舗は常に同じIDを持つため、複数回実行しても上書きされます。
 
         Args:
-            index: 連番
+            detail_url: 詳細ページのURL
 
         Returns:
-            str: 店舗ID（例: "08_00001"）
+            str: 店舗ID（例: "08_a3b5c7d9"）
         """
-        return f"{self.prefecture_code}_{index:05d}"
+        # URLをSHA256でハッシュ化し、最初の8文字を使用
+        url_hash = hashlib.sha256(detail_url.encode("utf-8")).hexdigest()[:8]
+        return f"{self.prefecture_code}_{url_hash}"
 
     def close(self) -> None:
         """リソースをクリーンアップ"""
