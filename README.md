@@ -335,10 +335,33 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 ### 4. GitHub Secretsの設定
 
+**🎯 クイックセットアップ（CLI）**
+
+```bash
+# GitHub Secretsを自動設定（Staging + Production）
+make github-secrets-setup
+
+# または個別に設定
+make github-secrets-staging      # Staging環境のみ
+make github-secrets-production   # Production環境のみ
+
+# 設定確認
+make github-secrets-list
+```
+
+**📚 詳細な手順は [GitHub Secretsセットアップガイド](docs/GITHUB_SECRETS_SETUP.md) を参照してください。**
+
+---
+
+<details>
+<summary>手動設定（Web UI）</summary>
+
 GitHubリポジトリの Settings > Secrets and variables > Actions で以下を設定：
 
 - `GCP_WORKLOAD_IDENTITY_PROVIDER`: `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/providers/github-provider`
 - `GCP_SERVICE_ACCOUNT`: `kosodate-scraper-sa@iiba-staging.iam.gserviceaccount.com`
+
+</details>
 
 ### 5. デプロイ
 

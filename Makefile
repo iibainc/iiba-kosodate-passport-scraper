@@ -239,3 +239,23 @@ dev-clean: ## ローカル開発環境をクリーンアップ
 	docker-compose down -v
 	rm -f .env
 	@echo "✓ Local environment cleaned"
+
+# ==============================================================================
+# GitHub Secrets Setup
+# ==============================================================================
+
+github-secrets-setup: ## GitHub Secretsをセットアップ（Staging + Production）
+	@echo "Setting up GitHub Secrets..."
+	./scripts/setup_github_secrets.sh all
+
+github-secrets-staging: ## Staging環境のGitHub Secretsをセットアップ
+	@echo "Setting up GitHub Secrets for Staging..."
+	./scripts/setup_github_secrets.sh staging
+
+github-secrets-production: ## Production環境のGitHub Secretsをセットアップ
+	@echo "Setting up GitHub Secrets for Production..."
+	./scripts/setup_github_secrets.sh production
+
+github-secrets-list: ## GitHub Secretsの一覧を表示
+	@echo "GitHub Secrets:"
+	gh secret list --repo iibainc/iiba-kosodate-passport-scraper

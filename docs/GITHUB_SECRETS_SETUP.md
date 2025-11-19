@@ -146,12 +146,72 @@ echo "${SA_EMAIL}"
 
 ### 2. GitHub Secretsの設定
 
+#### 方法A: GitHub CLI（推奨）
+
+**前提条件**: GitHub CLIがインストールされていること
+```bash
+# インストール確認
+gh --version
+
+# 未インストールの場合
+# macOS: brew install gh
+# 認証
+gh auth login
+```
+
+**Staging環境のSecretsを設定**:
+```bash
+# 1. Staging環境の設定（上記手順1で取得した値を使用）
+PROJECT_ID="iiba-staging"
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+SA_EMAIL="kosodate-scraper-sa@${PROJECT_ID}.iam.gserviceaccount.com"
+WIF_PROVIDER="projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github-actions/providers/github-provider"
+
+# 2. GitHub Secretsを設定
+gh secret set GCP_WORKLOAD_IDENTITY_PROVIDER \
+  --repo iibainc/iiba-kosodate-passport-scraper \
+  --body "$WIF_PROVIDER"
+
+gh secret set GCP_SERVICE_ACCOUNT \
+  --repo iibainc/iiba-kosodate-passport-scraper \
+  --body "$SA_EMAIL"
+```
+
+**Production環境のSecretsを設定**:
+```bash
+# 1. Production環境の設定（上記手順1で取得した値を使用）
+PROJECT_ID="iiba-production"
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+SA_EMAIL="kosodate-scraper-sa@${PROJECT_ID}.iam.gserviceaccount.com"
+WIF_PROVIDER="projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github-actions/providers/github-provider"
+
+# 2. GitHub Secretsを設定
+gh secret set GCP_WORKLOAD_IDENTITY_PROVIDER_PROD \
+  --repo iibainc/iiba-kosodate-passport-scraper \
+  --body "$WIF_PROVIDER"
+
+gh secret set GCP_SERVICE_ACCOUNT_PROD \
+  --repo iibainc/iiba-kosodate-passport-scraper \
+  --body "$SA_EMAIL"
+```
+
+**設定の確認**:
+```bash
+# 登録されているSecretsの一覧を表示
+gh secret list --repo iibainc/iiba-kosodate-passport-scraper
+```
+
+#### 方法B: Web UI
+
+<details>
+<summary>Web UIでの設定方法（クリックして展開）</summary>
+
 1. GitHubリポジトリページを開く
 2. **Settings** → **Secrets and variables** → **Actions** をクリック
 3. **New repository secret** をクリック
 4. 以下のSecretsを追加：
 
-#### Staging環境用
+##### Staging環境用
 
 **Name**: `GCP_WORKLOAD_IDENTITY_PROVIDER`
 **Value**:
@@ -165,7 +225,7 @@ projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/github-actions/
 kosodate-scraper-sa@iiba-staging.iam.gserviceaccount.com
 ```
 
-#### Production環境用
+##### Production環境用
 
 **Name**: `GCP_WORKLOAD_IDENTITY_PROVIDER_PROD`
 **Value**:
@@ -178,6 +238,8 @@ projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/github-actions/
 ```
 kosodate-scraper-sa@iiba-production.iam.gserviceaccount.com
 ```
+
+</details>
 
 ### 3. GitHub Environment設定（本番環境のみ）
 
