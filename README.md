@@ -97,6 +97,7 @@ make dev-run
 **📚 詳細な手順とデバッグ方法:**
 - [ローカル開発ガイド (VSCode)](docs/LOCAL_DEVELOPMENT.md)
 - [PyCharmデバッグガイド](docs/PYCHARM_SETUP.md)
+- [新しい都道府県の追加方法](docs/ADD_PREFECTURE_EXAMPLE.md) - 東京都のサンプル付き
 
 ---
 
