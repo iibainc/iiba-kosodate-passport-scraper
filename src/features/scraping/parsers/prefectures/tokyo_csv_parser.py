@@ -6,7 +6,7 @@ from typing import Optional
 from ...domain.models import Shop
 from .....shared.exceptions.errors import ParsingError
 from .....shared.logging.config import get_logger
-from .....shared.utils.text import normalize_text, extract_phone, extract_postal_code
+from .....shared.utils.text import normalize_text, extract_phone_number, extract_postal_code
 
 logger = get_logger(__name__)
 
@@ -116,7 +116,7 @@ class TokyoCsvParser:
                 prefecture_name=self.prefecture_name,
                 name=normalize_text(name),
                 address=normalize_text(address) if address else None,
-                phone=extract_phone(phone) if phone else None,
+                phone=extract_phone_number(phone) if phone else None,
                 business_hours=normalize_text(business_hours) if business_hours else None,
                 closed_days=normalize_text(closed_days) if closed_days else None,
                 detail_url=website if website else None,
