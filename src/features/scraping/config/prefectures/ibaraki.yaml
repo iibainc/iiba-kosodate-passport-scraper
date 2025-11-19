@@ -1,0 +1,35 @@
+prefecture:
+  code: "08"
+  name: "茨城県"
+  name_en: "ibaraki"
+
+scraping:
+  base_url: "https://www.kids.pref.ibaraki.jp"
+  encoding: "shift_jis"
+
+  urls:
+    search_form: "/kids/search_free/xs={xs}/dt=2337/"
+    list_page: "/kids/search_free/{page}/xs={xs}/dt=2337,0/"
+    detail_pattern: "/kids/.*/dt=2339,\\d+/"
+
+  pagination:
+    start_page: 1
+    end_page: 247  # auto_detect=falseの場合のみ使用
+    auto_detect: true  # trueの場合、ページを自動検出（end_pageは無視）
+    max_empty_pages: 3  # auto_detect時、連続で空のページがこの回数続いたら終了
+
+  session:
+    required: true
+    token_pattern: "xs=(_[A-Za-z0-9]+)"
+
+  selectors:
+    shop_name:
+      - "h4"
+      - "h1"
+      - ".title"
+    table: "table tr"
+    dl: "dl"
+
+  rate_limit:
+    sleep_min: 1.0
+    sleep_max: 1.8

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # Firestore Emulator
+  firestore:
+    image: google/cloud-sdk:latest
+    command: >
+      gcloud emulators firestore start
+      --host-port=0.0.0.0:8080
+      --project=local-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - FIRESTORE_PROJECT_ID=local-dev
+    volumes:
+      - firestore-data:/opt/data
+
+  # Firestore UI (管理画面)
+  firestore-ui:
+    image: aanorbel/firestore-emulator-ui:latest
+    depends_on:
+      - firestore
+    ports:
+      - "4000:4000"
+    environment:
+      - FIRESTORE_EMULATOR_HOST=firestore:8080
+
+volumes:
+  firestore-data:

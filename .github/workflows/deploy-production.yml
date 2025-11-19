@@ -1,0 +1,160 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # v1.0.0, v1.2.3などのタグにマッチ
+
+env:
+  PROJECT_ID: iiba-production
+  REGION: asia-northeast1
+  SERVICE_NAME: iiba-kosodate-passport-scraper
+  REPOSITORY: kosodate-scraper  # Artifact Registryリポジトリ名
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run (Production)
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+
+    permissions:
+      contents: read
+      id-token: write  # Workload Identity Federation用
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "Deploying version: ${GITHUB_REF#refs/tags/}"
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_PROD }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_PROD }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ steps.version.outputs.VERSION }} \
+                       -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:latest \
+                       .
+
+      - name: Push Docker image to Artifact Registry
+        run: |
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ steps.version.outputs.VERSION }}
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:latest
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        run: |
+          URL=$(gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ steps.version.outputs.VERSION }} \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --allow-unauthenticated \
+            --set-env-vars="ENVIRONMENT=production" \
+            --set-env-vars="GCP_PROJECT_ID=${{ env.PROJECT_ID }}" \
+            --set-env-vars="FIRESTORE_DATABASE_ID=(default)" \
+            --set-env-vars="GCS_BUCKET_NAME=${{ env.PROJECT_ID }}-kosodate-scraper" \
+            --set-env-vars="TARGET_PREFECTURES=08" \
+            --memory 2Gi \
+            --cpu 2 \
+            --timeout 3600 \
+            --min-instances 0 \
+            --max-instances 20 \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT_PROD }} \
+            --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Show deployment info
+        run: |
+          echo "🚀 Production Deployment completed!"
+          echo "📦 Version: ${{ steps.version.outputs.VERSION }}"
+          echo "🌐 URL: ${{ steps.deploy.outputs.url }}"
+          echo ""
+          gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --format='table(status.url,status.latestReadyRevisionName,spec.template.spec.containers[0].image)'
+
+      - name: Add deployment tag
+        run: |
+          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }} \
+            --tag=${{ steps.version.outputs.VERSION }}
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          release_name: Release ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## 🚀 Production Deployment
+
+            **Version**: ${{ steps.version.outputs.VERSION }}
+            **Environment**: Production
+            **Project**: ${{ env.PROJECT_ID }}
+            **Region**: ${{ env.REGION }}
+            **Service URL**: ${{ steps.deploy.outputs.url }}
+
+            ### Changes
+            <!-- このリリースで変更された内容を記載してください -->
+
+            ### Deployment Info
+            - Memory: 2Gi
+            - CPU: 2
+            - Max Instances: 20
+            - Timeout: 3600s
+          draft: false
+          prerelease: false
+
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for service to be ready
+        run: sleep 30
+
+      - name: Health check
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://iiba-kosodate-passport-scraper-production.a.run.app/health)
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ Health check passed"
+          else
+            echo "❌ Health check failed with status code: $RESPONSE"
+            exit 1
+          fi
+
+      - name: Root endpoint check
+        run: |
+          RESPONSE=$(curl -s https://iiba-kosodate-passport-scraper-production.a.run.app/)
+          echo "Response: $RESPONSE"
+          if echo "$RESPONSE" | grep -q "running"; then
+            echo "✅ Root endpoint check passed"
+          else
+            echo "❌ Root endpoint check failed"
+            exit 1
+          fi
