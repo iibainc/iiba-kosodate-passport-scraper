@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'  # v1.0.0, v1.2.3などのタグにマッチ
+  workflow_dispatch:  # 手動実行を許可
 
 env:
   PROJECT_ID: iiba-production
