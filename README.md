@@ -391,19 +391,69 @@ gcloud run deploy iiba-kosodate-passport-scraper \
 
 ### 6. Cloud Schedulerの設定（都道府県ごと）
 
+**🎯 クイックセットアップ（推奨）**
+
 ```bash
-# 茨城県（毎月1日 2:00実行）
-gcloud scheduler jobs create http kosodate-scrape-ibaraki \
+# Staging環境
+make scheduler-setup-staging
+
+# Production環境
+make scheduler-setup-production
+```
+
+このコマンドで、以下の3つのジョブが自動的に作成されます：
+- **1回目**: 毎月1日 2:00 - 通常はこれで全データ取得完了
+- **2回目**: 毎月1日 2:15 - 1回目がタイムアウトした場合の続き
+- **3回目**: 毎月1日 2:30 - 念のため（通常は即座に終了）
+
+**📊 仕組み:**
+- 進捗保存機能により、タイムアウト時も次回実行で自動的に続きから再開
+- 完了後の実行は進捗がないため即座に終了（コスト無駄なし）
+- 247ページの全データを確実に取得
+
+---
+
+<details>
+<summary>手動設定（クリックして展開）</summary>
+
+```bash
+# 茨城県 - 1回目（毎月1日 2:00）
+gcloud scheduler jobs create http kosodate-scrape-ibaraki-run1 \
     --schedule="0 2 1 * *" \
     --uri="https://YOUR_CLOUD_RUN_URL/scrape/08" \
     --http-method=POST \
     --oidc-service-account-email=kosodate-scraper-sa@iiba-staging.iam.gserviceaccount.com \
     --headers="Content-Type=application/json" \
     --location=asia-northeast1 \
-    --project=iiba-staging
+    --project=iiba-staging \
+    --time-zone="Asia/Tokyo"
+
+# 茨城県 - 2回目（毎月1日 2:15）
+gcloud scheduler jobs create http kosodate-scrape-ibaraki-run2 \
+    --schedule="15 2 1 * *" \
+    --uri="https://YOUR_CLOUD_RUN_URL/scrape/08" \
+    --http-method=POST \
+    --oidc-service-account-email=kosodate-scraper-sa@iiba-staging.iam.gserviceaccount.com \
+    --headers="Content-Type=application/json" \
+    --location=asia-northeast1 \
+    --project=iiba-staging \
+    --time-zone="Asia/Tokyo"
+
+# 茨城県 - 3回目（毎月1日 2:30）
+gcloud scheduler jobs create http kosodate-scrape-ibaraki-run3 \
+    --schedule="30 2 1 * *" \
+    --uri="https://YOUR_CLOUD_RUN_URL/scrape/08" \
+    --http-method=POST \
+    --oidc-service-account-email=kosodate-scraper-sa@iiba-staging.iam.gserviceaccount.com \
+    --headers="Content-Type=application/json" \
+    --location=asia-northeast1 \
+    --project=iiba-staging \
+    --time-zone="Asia/Tokyo"
 
 # 他の都道府県も同様に追加可能
 ```
+
+</details>
 
 ### 7. デプロイの確認
 

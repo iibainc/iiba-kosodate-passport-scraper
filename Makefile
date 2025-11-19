@@ -259,3 +259,32 @@ github-secrets-production: ## Production環境のGitHub Secretsをセットア�
 github-secrets-list: ## GitHub Secretsの一覧を表示
 	@echo "GitHub Secrets:"
 	gh secret list --repo iibainc/iiba-kosodate-passport-scraper
+
+# ==============================================================================
+# Cloud Scheduler Setup
+# ==============================================================================
+
+scheduler-setup-staging: ## Cloud Schedulerをセットアップ（Staging）
+	@echo "Setting up Cloud Scheduler (Staging)..."
+	./scripts/setup_cloud_scheduler.sh iiba-staging
+
+scheduler-setup-production: ## Cloud Schedulerをセットアップ（Production）
+	@echo "Setting up Cloud Scheduler (Production)..."
+	./scripts/setup_cloud_scheduler.sh iiba-production
+
+scheduler-test-staging: ## Cloud Schedulerジョブをテスト実行（Staging）
+	@echo "Running Cloud Scheduler job (test)..."
+	gcloud scheduler jobs run kosodate-scrape-ibaraki-run1 \
+		--location=asia-northeast1 \
+		--project=iiba-staging
+
+scheduler-list-staging: ## Cloud Schedulerジョブの一覧を表示（Staging）
+	@echo "Cloud Scheduler jobs (Staging):"
+	gcloud scheduler jobs list --location=asia-northeast1 --project=iiba-staging | grep kosodate
+
+scheduler-logs-staging: ## Cloud Runのログを表示（Staging）
+	@echo "Cloud Run logs (Staging):"
+	gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="iiba-kosodate-passport-scraper"' \
+		--limit 50 \
+		--project=iiba-staging \
+		--format=json
