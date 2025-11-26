@@ -34,7 +34,6 @@ venv.bak/
 
 # IDEs
 .vscode/
-.cursor/
 .idea/
 !.idea/runConfigurations/  # PyCharm実行設定は共有
 .idea/workspace.xml
