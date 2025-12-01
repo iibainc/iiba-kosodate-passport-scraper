@@ -5,16 +5,16 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from ...scraping.domain.models import ScrapingResult
-from ...scraping.domain.enums import ScrapingStatus
-from ...scraping.scrapers.base import AbstractPrefectureScraper
+from ....shared.exceptions.errors import GeocodingError, ScraperError, StorageError
+from ....shared.logging.config import get_logger
 from ...geocoding.services.geocoding_service import GeocodingService
-from ...storage.repositories.shop_repository import ShopRepository
+from ...notifications.providers.slack_notifier import SlackNotifier
+from ...scraping.domain.enums import ScrapingStatus
+from ...scraping.domain.models import ScrapingResult
+from ...scraping.scrapers.base import AbstractPrefectureScraper
 from ...storage.repositories.history_repository import HistoryRepository
 from ...storage.repositories.progress_repository import ProgressRepository
-from ...notifications.providers.slack_notifier import SlackNotifier
-from ....shared.exceptions.errors import ScraperError, GeocodingError, StorageError
-from ....shared.logging.config import get_logger
+from ...storage.repositories.shop_repository import ShopRepository
 
 logger = get_logger(__name__)
 

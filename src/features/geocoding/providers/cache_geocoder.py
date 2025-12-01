@@ -2,8 +2,8 @@
 
 from typing import Optional
 
-from ..domain.models import GeoLocation
 from ....shared.logging.config import get_logger
+from ..domain.models import GeoLocation
 from .google_maps_geocoder import GoogleMapsGeocoder
 
 logger = get_logger(__name__)

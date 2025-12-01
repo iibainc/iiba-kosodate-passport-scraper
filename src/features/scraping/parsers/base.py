@@ -5,9 +5,9 @@ from typing import Any, Optional
 
 from bs4 import BeautifulSoup
 
-from ..domain.models import Shop
 from ....shared.logging.config import get_logger
 from ....shared.utils.text import normalize_text
+from ..domain.models import Shop
 
 logger = get_logger(__name__)
 

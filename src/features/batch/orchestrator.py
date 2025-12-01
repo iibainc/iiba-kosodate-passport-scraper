@@ -2,20 +2,20 @@
 
 from typing import Optional
 
-from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
-from ..scraping.scrapers.prefectures.aichi import AichiScraper
-from ..scraping.scrapers.prefectures.tokyo_csv_scraper import TokyoCsvScraper
-from ..geocoding.services.geocoding_service import GeocodingService
-from ..storage.clients.firestore_client import FirestoreClient
-from ..storage.repositories.shop_repository import ShopRepository
-from ..storage.repositories.history_repository import HistoryRepository
-from ..storage.repositories.progress_repository import ProgressRepository
-from ..notifications.providers.slack_notifier import SlackNotifier
-from .jobs.prefecture_scraping_job import PrefectureScrapingJob
 from ...infrastructure.config.settings import Settings
 from ...infrastructure.gcp.secret_manager import SecretManagerClient
 from ...shared.http.client import HTTPClient
 from ...shared.logging.config import get_logger
+from ..geocoding.services.geocoding_service import GeocodingService
+from ..notifications.providers.slack_notifier import SlackNotifier
+from ..scraping.scrapers.prefectures.aichi import AichiScraper
+from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
+from ..scraping.scrapers.prefectures.tokyo_csv_scraper import TokyoCsvScraper
+from ..storage.clients.firestore_client import FirestoreClient
+from ..storage.repositories.history_repository import HistoryRepository
+from ..storage.repositories.progress_repository import ProgressRepository
+from ..storage.repositories.shop_repository import ShopRepository
+from .jobs.prefecture_scraping_job import PrefectureScrapingJob
 
 logger = get_logger(__name__)
 

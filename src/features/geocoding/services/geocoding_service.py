@@ -5,10 +5,10 @@ from typing import Optional
 
 from tqdm import tqdm
 
-from ...scraping.domain.models import Shop
-from ..domain.models import GeoLocation
 from ....shared.exceptions.errors import GeocodingError
 from ....shared.logging.config import get_logger
+from ...scraping.domain.models import Shop
+from ..domain.models import GeoLocation
 from ..providers.cache_geocoder import CacheGeocoder
 from ..providers.google_maps_geocoder import GoogleMapsGeocoder
 

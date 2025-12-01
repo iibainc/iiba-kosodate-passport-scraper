@@ -1,19 +1,19 @@
 """東京都CSVスクレイパー"""
 
 import csv
-from typing import Optional
 from io import StringIO
+from typing import Optional
 
 import yaml
 from tqdm import tqdm
 
-from ...domain.models import Shop
 from .....shared.exceptions.errors import HTTPError, ParsingError, ScraperError
 from .....shared.http.client import HTTPClient
 from .....shared.http.rate_limiter import RateLimiter
 from .....shared.logging.config import get_logger
-from ..base import AbstractPrefectureScraper
+from ...domain.models import Shop
 from ...parsers.prefectures.tokyo_csv_parser import TokyoCsvParser
+from ..base import AbstractPrefectureScraper
 
 logger = get_logger(__name__)
 

@@ -4,10 +4,10 @@ import hashlib
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from ..domain.models import Shop
 from ....shared.http.client import HTTPClient
 from ....shared.http.rate_limiter import RateLimiter
 from ....shared.logging.config import get_logger
+from ..domain.models import Shop
 
 logger = get_logger(__name__)
 

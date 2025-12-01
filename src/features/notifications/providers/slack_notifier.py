@@ -4,9 +4,9 @@ from typing import Any, Optional
 
 import requests
 
-from ..domain.models import NotificationMessage, NotificationType
 from ....shared.exceptions.errors import NotificationError
 from ....shared.logging.config import get_logger
+from ..domain.models import NotificationMessage, NotificationType
 
 logger = get_logger(__name__)
 

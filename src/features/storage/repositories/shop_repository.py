@@ -3,9 +3,9 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from ...scraping.domain.models import Shop
 from ....shared.exceptions.errors import StorageError, ValidationError
 from ....shared.logging.config import get_logger
+from ...scraping.domain.models import Shop
 from ..clients.firestore_client import FirestoreClient
 
 logger = get_logger(__name__)

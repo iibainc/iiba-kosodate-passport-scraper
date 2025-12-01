@@ -4,9 +4,9 @@ from typing import Optional
 
 import googlemaps
 
-from ..domain.models import GeoLocation
 from ....shared.exceptions.errors import GeocodingError
 from ....shared.logging.config import get_logger
+from ..domain.models import GeoLocation
 
 logger = get_logger(__name__)
 

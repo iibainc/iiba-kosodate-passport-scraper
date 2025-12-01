@@ -3,7 +3,7 @@
 import asyncio
 from typing import Any
 
-from fastapi import FastAPI, BackgroundTasks, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from .features.batch.orchestrator import BatchOrchestrator
