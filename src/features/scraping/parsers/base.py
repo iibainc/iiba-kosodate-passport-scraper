@@ -1,7 +1,7 @@
 """パーサーの基底クラス"""
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Optional
 
 from bs4 import BeautifulSoup
 

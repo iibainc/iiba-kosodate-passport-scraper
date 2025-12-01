@@ -1,12 +1,11 @@
 """東京都CSVパーサー"""
 
-import csv
 import hashlib
 from typing import Optional
 
 from .....shared.exceptions.errors import ParsingError
 from .....shared.logging.config import get_logger
-from .....shared.utils.text import extract_phone_number, extract_postal_code, normalize_text
+from .....shared.utils.text import extract_phone_number, normalize_text
 from ...domain.models import Shop
 
 logger = get_logger(__name__)
@@ -54,7 +53,6 @@ class TokyoCsvParser:
 
             # 基本情報
             shop_id_str = self._get_value(row, "shop_id")
-            postal_code = self._get_value(row, "postal_code")
             city = self._get_value(row, "city")
             address1 = self._get_value(row, "address1")
             address2 = self._get_value(row, "address2")
