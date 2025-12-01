@@ -1,4 +1,5 @@
 """東京都CSVパーサー"""
+
 import csv
 import hashlib
 from typing import Optional

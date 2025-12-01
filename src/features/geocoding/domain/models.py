@@ -1,4 +1,5 @@
 """ジオコーディング機能のドメインモデル"""
+
 from dataclasses import dataclass
 from typing import Optional
 

@@ -1,4 +1,5 @@
 """愛知県スクレイパー"""
+
 import re
 from typing import Optional
 from urllib.parse import urljoin, urlparse
@@ -161,7 +162,10 @@ class AichiScraper(AbstractPrefectureScraper):
 
                             # 重複ページ検出（前ページと完全に同じリンクセットの場合）
                             current_links_set = set(detail_links)
-                            if previous_links_set is not None and current_links_set == previous_links_set:
+                            if (
+                                previous_links_set is not None
+                                and current_links_set == previous_links_set
+                            ):
                                 duplicate_page_count += 1
                                 logger.info(
                                     f"Page {page_num} has identical links as previous page "
@@ -182,9 +186,7 @@ class AichiScraper(AbstractPrefectureScraper):
                     self.rate_limiter.wait()
 
                     # 各詳細ページをパース
-                    for detail_url in tqdm(
-                        detail_links, leave=False, desc=f"詳細({page_num})"
-                    ):
+                    for detail_url in tqdm(detail_links, leave=False, desc=f"詳細({page_num})"):
                         if detail_url in seen_urls:
                             continue
 
@@ -231,9 +233,7 @@ class AichiScraper(AbstractPrefectureScraper):
                 except Exception as e:
                     logger.error(f"Final batch callback failed: {e}")
 
-            logger.info(
-                f"Scraping completed: {len(all_shops)} shops found"
-            )
+            logger.info(f"Scraping completed: {len(all_shops)} shops found")
             return all_shops
 
         except Exception as e:
@@ -252,7 +252,7 @@ class AichiScraper(AbstractPrefectureScraper):
         try:
             # 一覧ページURLを構築
             list_url_template = self.config["scraping"]["urls"]["list_page"]
-            
+
             # TODO: URLパラメータの構築方法を調整
             if self.session_token:
                 list_url = self.base_url + list_url_template.format(
@@ -266,9 +266,7 @@ class AichiScraper(AbstractPrefectureScraper):
             html = response.text
 
             # 詳細リンクを抽出
-            detail_pattern = re.compile(
-                self.config["scraping"]["urls"]["detail_pattern"]
-            )
+            detail_pattern = re.compile(self.config["scraping"]["urls"]["detail_pattern"])
 
             links: list[str] = []
             seen: set[str] = set()
@@ -287,9 +285,10 @@ class AichiScraper(AbstractPrefectureScraper):
                 full_url = urljoin(list_url, href)
 
                 # 同一ドメインのみ
-                if urlparse(full_url).netloc and urlparse(full_url).netloc != urlparse(
-                    self.base_url
-                ).netloc:
+                if (
+                    urlparse(full_url).netloc
+                    and urlparse(full_url).netloc != urlparse(self.base_url).netloc
+                ):
                     continue
 
                 # 詳細ページのパターンにマッチするか確認
@@ -298,18 +297,14 @@ class AichiScraper(AbstractPrefectureScraper):
                         seen.add(full_url)
                         links.append(full_url)
 
-            logger.debug(
-                f"Found {len(links)} detail links on page {page_num}"
-            )
+            logger.debug(f"Found {len(links)} detail links on page {page_num}")
             return links
 
         except HTTPError as e:
             logger.error(f"Failed to get detail links from page {page_num}: {e}")
             return []
         except Exception as e:
-            logger.error(
-                f"Unexpected error while getting detail links from page {page_num}: {e}"
-            )
+            logger.error(f"Unexpected error while getting detail links from page {page_num}: {e}")
             return []
 
     def parse_detail_page(self, url: str) -> Optional[Shop]:
@@ -360,15 +355,13 @@ class AichiScraper(AbstractPrefectureScraper):
 
         try:
             # 検索フォームページにアクセス
-            search_form_url = self.base_url + self.config["scraping"]["urls"][
-                "search_form"
-            ].format(xs="_xiIg.b7z_riD")  # ダミートークン
+            search_form_url = self.base_url + self.config["scraping"]["urls"]["search_form"].format(
+                xs="_xiIg.b7z_riD"
+            )  # ダミートークン
 
             logger.info(f"Initializing session: {search_form_url}")
 
-            response = self.http_client.get(
-                search_form_url, encoding=self.encoding
-            )
+            response = self.http_client.get(search_form_url, encoding=self.encoding)
             html = response.text
 
             # フォームをパース
@@ -395,14 +388,10 @@ class AichiScraper(AbstractPrefectureScraper):
 
             # フォームをPOST
             logger.debug(f"Posting form to {action}")
-            post_response = self.http_client.post(
-                action, data=form_data, encoding=self.encoding
-            )
+            post_response = self.http_client.post(action, data=form_data, encoding=self.encoding)
 
             # レスポンスURLからトークンを抽出
-            token_pattern = re.compile(
-                self.config["scraping"]["session"]["token_pattern"]
-            )
+            token_pattern = re.compile(self.config["scraping"]["session"]["token_pattern"])
             match = token_pattern.search(post_response.url)
 
             if match:

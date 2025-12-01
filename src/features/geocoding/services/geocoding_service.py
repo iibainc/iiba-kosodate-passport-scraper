@@ -1,4 +1,5 @@
 """ジオコーディングサービス"""
+
 import time
 from typing import Optional
 
@@ -32,9 +33,7 @@ class GeocodingService:
         self.base_geocoder = GoogleMapsGeocoder(api_key)
 
         if use_cache:
-            self.geocoder: CacheGeocoder | GoogleMapsGeocoder = CacheGeocoder(
-                self.base_geocoder
-            )
+            self.geocoder: CacheGeocoder | GoogleMapsGeocoder = CacheGeocoder(self.base_geocoder)
         else:
             self.geocoder = self.base_geocoder
 
@@ -77,23 +76,17 @@ class GeocodingService:
                 )
                 return True
             else:
-                logger.warning(
-                    f"Failed to geocode shop {shop.shop_id}: {full_address}"
-                )
+                logger.warning(f"Failed to geocode shop {shop.shop_id}: {full_address}")
                 return False
 
         except GeocodingError as e:
             logger.error(f"Geocoding error for shop {shop.shop_id}: {e}")
             return False
         except Exception as e:
-            logger.error(
-                f"Unexpected error during geocoding for shop {shop.shop_id}: {e}"
-            )
+            logger.error(f"Unexpected error during geocoding for shop {shop.shop_id}: {e}")
             return False
 
-    def geocode_shops_batch(
-        self, shops: list[Shop], show_progress: bool = True
-    ) -> dict[str, int]:
+    def geocode_shops_batch(self, shops: list[Shop], show_progress: bool = True) -> dict[str, int]:
         """
         複数の店舗をバッチジオコーディング
 
@@ -153,9 +146,7 @@ class GeocodingService:
             shops: 店舗オブジェクトのリスト
         """
         if not isinstance(self.geocoder, CacheGeocoder):
-            logger.warning(
-                "Prefetch is only supported when using CacheGeocoder"
-            )
+            logger.warning("Prefetch is only supported when using CacheGeocoder")
             return
 
         # 住所のリストを作成
@@ -178,9 +169,7 @@ class GeocodingService:
         if isinstance(self.geocoder, CacheGeocoder):
             return self.geocoder.get_cache_stats()
         else:
-            logger.warning(
-                "Cache stats are only available when using CacheGeocoder"
-            )
+            logger.warning("Cache stats are only available when using CacheGeocoder")
             return None
 
     def clear_cache(self) -> None:
@@ -188,6 +177,4 @@ class GeocodingService:
         if isinstance(self.geocoder, CacheGeocoder):
             self.geocoder.clear_cache()
         else:
-            logger.warning(
-                "Cache clearing is only supported when using CacheGeocoder"
-            )
+            logger.warning("Cache clearing is only supported when using CacheGeocoder")

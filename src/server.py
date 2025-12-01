@@ -1,4 +1,5 @@
 """Cloud Run用HTTPサーバー（FastAPI）"""
+
 import asyncio
 from typing import Any
 
@@ -142,9 +143,7 @@ def run_scraping_task(prefecture_code: str) -> None:
         # スクレイピングを実行
         orchestrator.run_prefecture_scraping(prefecture_code)
 
-        logger.info(
-            f"Scraping task completed for prefecture: {prefecture_code}"
-        )
+        logger.info(f"Scraping task completed for prefecture: {prefecture_code}")
 
     except Exception as e:
         logger.error(
@@ -169,9 +168,7 @@ def run_all_scraping_task() -> None:
         logger.info("Scraping task completed for all target prefectures")
 
     except Exception as e:
-        logger.error(
-            f"Scraping task failed for all prefectures: {e}", exc_info=True
-        )
+        logger.error(f"Scraping task failed for all prefectures: {e}", exc_info=True)
 
 
 if __name__ == "__main__":

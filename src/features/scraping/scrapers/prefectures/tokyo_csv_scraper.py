@@ -1,4 +1,5 @@
 """東京都CSVスクレイパー"""
+
 import csv
 from typing import Optional
 from io import StringIO
@@ -124,7 +125,7 @@ class TokyoCsvScraper(AbstractPrefectureScraper):
             response = self.http_client.get(self.csv_url)
 
             # Shift-JIS → UTF-8に変換（エラー文字は置換）
-            csv_text = response.content.decode(self.encoding, errors='replace')
+            csv_text = response.content.decode(self.encoding, errors="replace")
 
             logger.info(f"CSV downloaded: {len(csv_text)} bytes")
             return csv_text

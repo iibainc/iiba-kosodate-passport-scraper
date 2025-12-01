@@ -1,4 +1,5 @@
 """愛知県の店舗情報パーサー"""
+
 import re
 from datetime import datetime
 from typing import Any, Optional
@@ -118,7 +119,14 @@ class AichiParser(BaseParser):
         """
         # h4, h1, h2などの見出しから探す
         # div.detail_box内のh3, h2, h1を優先
-        for selector in ["div.detail_box h3", "div.detail_box h2", "div.detail_box h1", ".title", ".page-title", ".shop-name"]:
+        for selector in [
+            "div.detail_box h3",
+            "div.detail_box h2",
+            "div.detail_box h1",
+            ".title",
+            ".page-title",
+            ".shop-name",
+        ]:
             element = soup.select_one(selector)
             if element:
                 text = normalize_text(element.get_text())
@@ -130,7 +138,9 @@ class AichiParser(BaseParser):
             title_text = normalize_text(soup.title.get_text())
             if title_text:
                 # 区切り記号の手前を取得
-                guessed = title_text.split("｜")[0] if "｜" in title_text else title_text.split("|")[0]
+                guessed = (
+                    title_text.split("｜")[0] if "｜" in title_text else title_text.split("|")[0]
+                )
                 if guessed and all(generic not in guessed for generic in self.GENERIC_TITLES):
                     return guessed
 
@@ -171,7 +181,9 @@ class AichiParser(BaseParser):
             address=address,
             phone=phone,
             postal_code=postal_code,
-            business_hours=self._extract_field(data, ["営業時間", "営業日時", "利用時間", "開館時間"]),
+            business_hours=self._extract_field(
+                data, ["営業時間", "営業日時", "利用時間", "開館時間"]
+            ),
             closed_days=self._extract_field(data, ["定休日", "休館日", "休業日"]),
             detail_url=url,
             website=self._extract_field(data, ["URL", "公式サイト", "ホームページ", "Webサイト"]),

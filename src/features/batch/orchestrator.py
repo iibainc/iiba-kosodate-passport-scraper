@@ -1,4 +1,5 @@
 """バッチオーケストレーター"""
+
 from typing import Optional
 
 from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper

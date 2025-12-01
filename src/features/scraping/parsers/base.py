@@ -1,4 +1,5 @@
 """パーサーの基底クラス"""
+
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
@@ -45,9 +46,7 @@ class BaseParser(ABC):
         """
         return BeautifulSoup(html, "html.parser")
 
-    def extract_text(
-        self, soup: BeautifulSoup, selector: str
-    ) -> Optional[str]:
+    def extract_text(self, soup: BeautifulSoup, selector: str) -> Optional[str]:
         """
         セレクターで要素を取得し、テキストを正規化して返す
 
@@ -63,9 +62,7 @@ class BaseParser(ABC):
             return normalize_text(element.get_text())
         return None
 
-    def extract_text_multi(
-        self, soup: BeautifulSoup, selectors: list[str]
-    ) -> Optional[str]:
+    def extract_text_multi(self, soup: BeautifulSoup, selectors: list[str]) -> Optional[str]:
         """
         複数のセレクターから最初に見つかったテキストを返す
 
@@ -112,9 +109,7 @@ class BaseParser(ABC):
 
         return data
 
-    def extract_dl_data(
-        self, soup: BeautifulSoup, dl_selector: str = "dl"
-    ) -> dict[str, str]:
+    def extract_dl_data(self, soup: BeautifulSoup, dl_selector: str = "dl") -> dict[str, str]:
         """
         定義リスト（dl/dt/dd）からキー・バリューペアを抽出
 

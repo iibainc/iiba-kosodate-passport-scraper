@@ -1,4 +1,5 @@
 """都道府県スクレイピングジョブ"""
+
 import time
 import uuid
 from datetime import datetime
@@ -90,17 +91,13 @@ class PrefectureScrapingJob:
         )
 
         try:
-            logger.info(
-                f"Starting scraping job: {self.scraper.prefecture_name} (run_id={run_id})"
-            )
+            logger.info(f"Starting scraping job: {self.scraper.prefecture_name} (run_id={run_id})")
 
             # 1. スクレイピング開始通知
             self._send_start_notification()
 
             # 2. 前回の進捗を確認
-            previous_progress = self.progress_repository.get_progress(
-                self.scraper.prefecture_code
-            )
+            previous_progress = self.progress_repository.get_progress(self.scraper.prefecture_code)
             resume_from_page = None
             if previous_progress:
                 completed_pages = previous_progress.get("completed_pages", [])
@@ -116,7 +113,9 @@ class PrefectureScrapingJob:
                     )
 
             # 3. Webサイトからデータ取得（バッチ処理付き）
-            logger.info(f"Step 1: Scraping shops from website with batch processing (batch_size={self.batch_size})")
+            logger.info(
+                f"Step 1: Scraping shops from website with batch processing (batch_size={self.batch_size})"
+            )
 
             # バッチコールバックを定義
             def process_batch(batch_shops: list) -> None:
@@ -173,9 +172,7 @@ class PrefectureScrapingJob:
                 logger.warning("No shops found")
                 result.status = ScrapingStatus.SUCCESS
                 result.completed_at = datetime.now()
-                result.duration_seconds = (
-                    result.completed_at - started_at
-                ).total_seconds()
+                result.duration_seconds = (result.completed_at - started_at).total_seconds()
 
                 # 履歴を保存
                 self.history_repository.save(result)
@@ -195,9 +192,7 @@ class PrefectureScrapingJob:
             # 完了
             result.status = ScrapingStatus.SUCCESS
             result.completed_at = datetime.now()
-            result.duration_seconds = (
-                result.completed_at - started_at
-            ).total_seconds()
+            result.duration_seconds = (result.completed_at - started_at).total_seconds()
 
             logger.info(
                 f"Scraping job completed: {result.total_shops} shops, "
@@ -252,9 +247,7 @@ class PrefectureScrapingJob:
             dict[str, int]: ジオコーディング結果
         """
         if not self.geocoding_service:
-            logger.info(
-                "Geocoding is disabled; skipping geocoding for current batch"
-            )
+            logger.info("Geocoding is disabled; skipping geocoding for current batch")
             return {
                 "success": 0,
                 "failure": 0,
@@ -263,12 +256,9 @@ class PrefectureScrapingJob:
             }
 
         try:
-            result = self.geocoding_service.geocode_shops_batch(
-                shops, show_progress=show_progress
-            )
+            result = self.geocoding_service.geocode_shops_batch(shops, show_progress=show_progress)
             logger.debug(
-                f"Geocoding completed: {result['success']} success, "
-                f"{result['failure']} failure"
+                f"Geocoding completed: {result['success']} success, " f"{result['failure']} failure"
             )
             return result
 
@@ -294,8 +284,7 @@ class PrefectureScrapingJob:
         try:
             result = self.shop_repository.save_batch(shops)
             logger.info(
-                f"Shops saved: {result['created']} created, "
-                f"{result['updated']} updated"
+                f"Shops saved: {result['created']} created, " f"{result['updated']} updated"
             )
             return result
 

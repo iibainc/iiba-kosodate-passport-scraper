@@ -1,4 +1,5 @@
 """スクレイピング履歴リポジトリ"""
+
 from datetime import datetime
 from typing import Optional
 
@@ -46,9 +47,7 @@ class HistoryRepository:
             )
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to save scraping result {result.run_id}: {e}"
-            ) from e
+            raise StorageError(f"Failed to save scraping result {result.run_id}: {e}") from e
 
     def get_by_run_id(self, run_id: str) -> Optional[ScrapingResult]:
         """
@@ -68,13 +67,9 @@ class HistoryRepository:
             return None
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to get scraping result {run_id}: {e}"
-            ) from e
+            raise StorageError(f"Failed to get scraping result {run_id}: {e}") from e
 
-    def get_latest_by_prefecture(
-        self, prefecture_code: str
-    ) -> Optional[ScrapingResult]:
+    def get_latest_by_prefecture(self, prefecture_code: str) -> Optional[ScrapingResult]:
         """
         都道府県の最新のスクレイピング結果を取得
 
@@ -89,11 +84,15 @@ class HistoryRepository:
 
             # started_atで降順ソート（最新を取得）
             collection = self.client.get_collection(self.COLLECTION_NAME)
-            query = collection.where(
-                filter=collection._client._firestore_api.FieldFilter(
-                    "prefecture_code", "==", prefecture_code
+            query = (
+                collection.where(
+                    filter=collection._client._firestore_api.FieldFilter(
+                        "prefecture_code", "==", prefecture_code
+                    )
                 )
-            ).order_by("started_at", direction="DESCENDING").limit(1)
+                .order_by("started_at", direction="DESCENDING")
+                .limit(1)
+            )
 
             docs = list(query.stream())
 
@@ -157,9 +156,7 @@ class HistoryRepository:
         """
         try:
             collection = self.client.get_collection(self.COLLECTION_NAME)
-            query = collection.order_by("started_at", direction="DESCENDING").limit(
-                limit
-            )
+            query = collection.order_by("started_at", direction="DESCENDING").limit(limit)
 
             docs = query.stream()
             results = [self._from_firestore_dict(doc.to_dict()) for doc in docs if doc.exists]
@@ -217,9 +214,7 @@ class HistoryRepository:
             logger.info(f"Scraping result deleted: {run_id}")
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to delete scraping result {run_id}: {e}"
-            ) from e
+            raise StorageError(f"Failed to delete scraping result {run_id}: {e}") from e
 
     def _from_firestore_dict(self, data: dict) -> ScrapingResult:
         """

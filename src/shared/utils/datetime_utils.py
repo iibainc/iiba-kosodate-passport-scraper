@@ -1,4 +1,5 @@
 """日時関連ユーティリティ"""
+
 from datetime import datetime, timezone
 
 import pytz

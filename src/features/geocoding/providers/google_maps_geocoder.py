@@ -1,4 +1,5 @@
 """Google Maps Geocoding API実装"""
+
 from typing import Optional
 
 import googlemaps
@@ -61,9 +62,7 @@ class GoogleMapsGeocoder:
             longitude = location.get("lng")
 
             if latitude is None or longitude is None:
-                logger.warning(
-                    f"Invalid geocoding result (missing lat/lng): {address}"
-                )
+                logger.warning(f"Invalid geocoding result (missing lat/lng): {address}")
                 return None
 
             formatted_address = result.get("formatted_address")
@@ -76,9 +75,7 @@ class GoogleMapsGeocoder:
                 place_id=place_id,
             )
 
-            logger.debug(
-                f"Geocoded: {address} -> ({latitude}, {longitude})"
-            )
+            logger.debug(f"Geocoded: {address} -> ({latitude}, {longitude})")
 
             return geo_location
 
@@ -87,13 +84,9 @@ class GoogleMapsGeocoder:
         except googlemaps.exceptions.TransportError as e:
             raise GeocodingError(f"Google Maps transport error: {e}") from e
         except Exception as e:
-            raise GeocodingError(
-                f"Unexpected error during geocoding: {e}"
-            ) from e
+            raise GeocodingError(f"Unexpected error during geocoding: {e}") from e
 
-    def reverse_geocode(
-        self, latitude: float, longitude: float
-    ) -> Optional[GeoLocation]:
+    def reverse_geocode(self, latitude: float, longitude: float) -> Optional[GeoLocation]:
         """
         座標から住所を取得（逆ジオコーディング）
 
@@ -114,9 +107,7 @@ class GoogleMapsGeocoder:
             results = self.client.reverse_geocode((latitude, longitude))
 
             if not results:
-                logger.warning(
-                    f"No reverse geocoding results for: ({latitude}, {longitude})"
-                )
+                logger.warning(f"No reverse geocoding results for: ({latitude}, {longitude})")
                 return None
 
             # 最初の結果を使用
@@ -131,9 +122,7 @@ class GoogleMapsGeocoder:
                 place_id=place_id,
             )
 
-            logger.debug(
-                f"Reverse geocoded: ({latitude}, {longitude}) -> {formatted_address}"
-            )
+            logger.debug(f"Reverse geocoded: ({latitude}, {longitude}) -> {formatted_address}")
 
             return geo_location
 
@@ -142,6 +131,4 @@ class GoogleMapsGeocoder:
         except googlemaps.exceptions.TransportError as e:
             raise GeocodingError(f"Google Maps transport error: {e}") from e
         except Exception as e:
-            raise GeocodingError(
-                f"Unexpected error during reverse geocoding: {e}"
-            ) from e
+            raise GeocodingError(f"Unexpected error during reverse geocoding: {e}") from e
