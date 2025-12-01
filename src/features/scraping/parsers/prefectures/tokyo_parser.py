@@ -6,11 +6,7 @@ from bs4 import BeautifulSoup
 
 from ....shared.exceptions.errors import ParsingError
 from ....shared.logging.config import get_logger
-from ....shared.utils.text import (
-    extract_phone_number,
-    extract_postal_code,
-    normalize_text,
-)
+from ....shared.utils.text import extract_phone_number, extract_postal_code, normalize_text
 from ...domain.models import Shop
 
 logger = get_logger(__name__)
