@@ -9,8 +9,15 @@ from .features.batch.orchestrator import BatchOrchestrator
 from .infrastructure.config.settings import Settings
 from .shared.logging.config import get_logger, setup_logging
 
+import os
+
 # 設定を読み込み
 settings = Settings()
+
+# ローカル開発環境でエミュレータを使用する場合、環境変数を設定
+# google-cloud-firestoreライブラリがこの環境変数を参照するため
+if settings.firestore_emulator_host:
+    os.environ["FIRESTORE_EMULATOR_HOST"] = settings.firestore_emulator_host
 
 # ロギングを設定
 setup_logging(level=settings.log_level)
