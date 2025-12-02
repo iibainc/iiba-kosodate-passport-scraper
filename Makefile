@@ -203,7 +203,7 @@ dev-start: ## Firestoreエミュレータを起動
 	docker compose up -d
 	@echo "✓ Firestore emulator started"
 	@echo "  Firestore: http://localhost:8080"
-	@echo "  Firestore UI: http://localhost:4000"
+	@echo "  Note: Firestore UI is currently disabled (Docker image not available)"
 
 dev-stop: ## Firestoreエミュレータを停止
 	@echo "Stopping Firestore emulator..."
