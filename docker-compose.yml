@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Firestore Emulator
   firestore:
@@ -17,7 +15,7 @@ services:
 
   # Firestore UI (管理画面)
   firestore-ui:
-    image: aanorbel/firestore-emulator-ui:latest
+    image: quay.io/strimzi/firestore-emulator-ui:latest
     depends_on:
       - firestore
     ports:
