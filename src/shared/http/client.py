@@ -1,6 +1,5 @@
 """HTTPクライアント（リトライ機能付き）"""
 
-import time
 from typing import Any, Optional
 
 import requests

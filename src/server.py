@@ -1,6 +1,5 @@
 """Cloud Run用HTTPサーバー（FastAPI）"""
 
-import asyncio
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request

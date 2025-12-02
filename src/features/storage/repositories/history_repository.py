@@ -1,6 +1,5 @@
 """スクレイピング履歴リポジトリ"""
 
-from datetime import datetime
 from typing import Optional
 
 from ....shared.exceptions.errors import StorageError
@@ -80,8 +79,6 @@ class HistoryRepository:
             Optional[ScrapingResult]: スクレイピング結果オブジェクト（存在しない場合はNone）
         """
         try:
-            filters = [("prefecture_code", "==", prefecture_code)]
-
             # started_atで降順ソート（最新を取得）
             collection = self.client.get_collection(self.COLLECTION_NAME)
             query = (
