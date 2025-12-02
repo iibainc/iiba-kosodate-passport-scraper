@@ -89,7 +89,7 @@ class FirestoreClient:
         try:
             for i in range(0, total, batch_size):
                 batch = self.client.batch()
-                chunk = documents[i:i + batch_size]
+                chunk = documents[i : i + batch_size]
 
                 for doc in chunk:
                     doc_id = doc.get(id_field)
