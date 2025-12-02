@@ -9,8 +9,8 @@ from .features.batch.orchestrator import BatchOrchestrator
 from .infrastructure.config.settings import Settings
 from .shared.logging.config import get_logger, setup_logging
 
-# 設定を読み込み
-settings = Settings()
+# 設定を読み込み（環境変数から読み込まれる）
+settings = Settings()  # type: ignore[call-arg]
 
 # ロギングを設定
 setup_logging(level=settings.log_level)

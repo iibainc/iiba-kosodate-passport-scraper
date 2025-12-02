@@ -32,7 +32,7 @@ class AbstractPrefectureScraper(ABC):
         self.prefecture_code = prefecture_code
         self.prefecture_name = prefecture_name
         self.http_client = http_client or HTTPClient()
-        self.rate_limiter = rate_limiter or RateLimiter(requests_per_second=1.0, burst_size=1)
+        self.rate_limiter = rate_limiter or RateLimiter(requests_per_second=1.0)
 
         logger.info(f"Scraper initialized: {self.prefecture_name} ({self.prefecture_code})")
 
