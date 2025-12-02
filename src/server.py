@@ -1,5 +1,6 @@
 """Cloud Run用HTTPサーバー（FastAPI）"""
 
+import os
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
@@ -8,8 +9,6 @@ from fastapi.responses import JSONResponse
 from .features.batch.orchestrator import BatchOrchestrator
 from .infrastructure.config.settings import Settings
 from .shared.logging.config import get_logger, setup_logging
-
-import os
 
 # 設定を読み込み
 settings = Settings()
