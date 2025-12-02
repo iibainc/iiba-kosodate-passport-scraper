@@ -1,4 +1,5 @@
 """GCP Secret Manager連携"""
+
 from typing import Optional
 
 from google.cloud import secretmanager

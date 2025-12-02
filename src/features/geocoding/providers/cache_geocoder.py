@@ -1,8 +1,9 @@
 """キャッシュ付きジオコーダー"""
+
 from typing import Optional
 
-from ..domain.models import GeoLocation
 from ....shared.logging.config import get_logger
+from ..domain.models import GeoLocation
 from .google_maps_geocoder import GoogleMapsGeocoder
 
 logger = get_logger(__name__)
@@ -62,9 +63,7 @@ class CacheGeocoder:
 
         return geo_location
 
-    def reverse_geocode(
-        self, latitude: float, longitude: float
-    ) -> Optional[GeoLocation]:
+    def reverse_geocode(self, latitude: float, longitude: float) -> Optional[GeoLocation]:
         """
         座標から住所を取得（逆ジオコーディング、キャッシュあり）
 
@@ -111,9 +110,7 @@ class CacheGeocoder:
             dict[str, int]: キャッシュ統計（サイズ、ヒット数、ミス数、ヒット率）
         """
         total_requests = self.hit_count + self.miss_count
-        hit_rate = (
-            (self.hit_count / total_requests * 100) if total_requests > 0 else 0.0
-        )
+        hit_rate = (self.hit_count / total_requests * 100) if total_requests > 0 else 0.0
 
         stats = {
             "cache_size": len(self.cache),

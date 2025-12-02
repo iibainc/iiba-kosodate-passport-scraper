@@ -1,12 +1,13 @@
 """東京都CSVパーサー"""
+
 import csv
 import hashlib
 from typing import Optional
 
-from ...domain.models import Shop
 from .....shared.exceptions.errors import ParsingError
 from .....shared.logging.config import get_logger
-from .....shared.utils.text import normalize_text, extract_phone_number, extract_postal_code
+from .....shared.utils.text import extract_phone_number, extract_postal_code, normalize_text
+from ...domain.models import Shop
 
 logger = get_logger(__name__)
 

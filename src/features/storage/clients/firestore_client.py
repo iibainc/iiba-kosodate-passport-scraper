@@ -1,4 +1,5 @@
 """Firestoreクライアント"""
+
 import os
 from typing import Any, Optional
 
@@ -29,9 +30,7 @@ class FirestoreClient:
         emulator_host = os.environ.get("FIRESTORE_EMULATOR_HOST")
 
         try:
-            self.client = firestore.Client(
-                project=project_id, database=database_id
-            )
+            self.client = firestore.Client(project=project_id, database=database_id)
 
             if emulator_host:
                 logger.info(
@@ -95,9 +94,7 @@ class FirestoreClient:
                 for doc in chunk:
                     doc_id = doc.get(id_field)
                     if not doc_id:
-                        logger.warning(
-                            f"Document missing {id_field}, skipping: {doc}"
-                        )
+                        logger.warning(f"Document missing {id_field}, skipping: {doc}")
                         continue
 
                     doc_ref = collection.document(str(doc_id))
@@ -109,18 +106,12 @@ class FirestoreClient:
                     f"Batch write: {written}/{total} documents written to {collection_path}"
                 )
 
-            logger.info(
-                f"Batch write completed: {written} documents written to {collection_path}"
-            )
+            logger.info(f"Batch write completed: {written} documents written to {collection_path}")
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to batch write to {collection_path}: {e}"
-            ) from e
+            raise StorageError(f"Failed to batch write to {collection_path}: {e}") from e
 
-    def get_document(
-        self, collection_path: str, document_id: str
-    ) -> Optional[dict[str, Any]]:
+    def get_document(self, collection_path: str, document_id: str) -> Optional[dict[str, Any]]:
         """
         ドキュメントを取得
 
@@ -182,9 +173,7 @@ class FirestoreClient:
             return [doc.to_dict() for doc in docs if doc.exists]
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to query documents from {collection_path}: {e}"
-            ) from e
+            raise StorageError(f"Failed to query documents from {collection_path}: {e}") from e
 
     def delete_document(self, collection_path: str, document_id: str) -> None:
         """
@@ -218,9 +207,7 @@ class FirestoreClient:
         try:
             doc_ref = self.get_collection(collection_path).document(document_id)
             doc_ref.update(updates)
-            logger.info(
-                f"Document {document_id} updated in {collection_path}: {updates}"
-            )
+            logger.info(f"Document {document_id} updated in {collection_path}: {updates}")
 
         except Exception as e:
             raise StorageError(
@@ -257,6 +244,4 @@ class FirestoreClient:
             return count
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to count documents in {collection_path}: {e}"
-            ) from e
+            raise StorageError(f"Failed to count documents in {collection_path}: {e}") from e

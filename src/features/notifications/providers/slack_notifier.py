@@ -1,11 +1,12 @@
 """Slack通知プロバイダー"""
+
 from typing import Any, Optional
 
 import requests
 
-from ..domain.models import NotificationMessage, NotificationType
 from ....shared.exceptions.errors import NotificationError
 from ....shared.logging.config import get_logger
+from ..domain.models import NotificationMessage, NotificationType
 
 logger = get_logger(__name__)
 
@@ -61,9 +62,7 @@ class SlackNotifier:
         except requests.RequestException as e:
             raise NotificationError(f"Failed to send Slack notification: {e}") from e
         except Exception as e:
-            raise NotificationError(
-                f"Unexpected error during Slack notification: {e}"
-            ) from e
+            raise NotificationError(f"Unexpected error during Slack notification: {e}") from e
 
     def send_simple(
         self,
@@ -99,13 +98,9 @@ class SlackNotifier:
             logger.info(f"Simple Slack message sent: {text[:50]}...")
 
         except requests.RequestException as e:
-            raise NotificationError(
-                f"Failed to send simple Slack message: {e}"
-            ) from e
+            raise NotificationError(f"Failed to send simple Slack message: {e}") from e
         except Exception as e:
-            raise NotificationError(
-                f"Unexpected error during simple Slack message: {e}"
-            ) from e
+            raise NotificationError(f"Unexpected error during simple Slack message: {e}") from e
 
     def _build_payload(
         self,
@@ -230,9 +225,7 @@ class SlackNotifier:
         else:
             return str(value)
 
-    def send_scraping_start(
-        self, prefecture_name: str, prefecture_code: str
-    ) -> None:
+    def send_scraping_start(self, prefecture_name: str, prefecture_code: str) -> None:
         """
         スクレイピング開始通知を送信
 
@@ -289,9 +282,7 @@ class SlackNotifier:
 
         self.send(message)
 
-    def send_scraping_error(
-        self, prefecture_name: str, prefecture_code: str, error: str
-    ) -> None:
+    def send_scraping_error(self, prefecture_name: str, prefecture_code: str, error: str) -> None:
         """
         スクレイピングエラー通知を送信
 

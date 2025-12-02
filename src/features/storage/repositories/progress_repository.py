@@ -1,4 +1,5 @@
 """スクレイピング進捗リポジトリ"""
+
 from datetime import datetime
 from typing import Optional
 

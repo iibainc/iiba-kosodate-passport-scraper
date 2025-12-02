@@ -1,17 +1,14 @@
 """茨城県の店舗情報パーサー"""
+
 import re
 from datetime import datetime
 from typing import Any, Optional
 
 from bs4 import BeautifulSoup
 
-from ...domain.models import Shop
 from .....shared.logging.config import get_logger
-from .....shared.utils.text import (
-    extract_phone_number,
-    extract_postal_code,
-    normalize_text,
-)
+from .....shared.utils.text import extract_phone_number, extract_postal_code, normalize_text
+from ...domain.models import Shop
 from ..base import BaseParser
 
 logger = get_logger(__name__)
@@ -118,7 +115,9 @@ class IbarakiParser(BaseParser):
             title_text = normalize_text(soup.title.get_text())
             if title_text:
                 # 区切り記号の手前を取得
-                guessed = title_text.split("｜")[0] if "｜" in title_text else title_text.split("|")[0]
+                guessed = (
+                    title_text.split("｜")[0] if "｜" in title_text else title_text.split("|")[0]
+                )
                 if guessed and all(generic not in guessed for generic in self.GENERIC_TITLES):
                     return guessed
 
@@ -159,7 +158,9 @@ class IbarakiParser(BaseParser):
             address=address,
             phone=phone,
             postal_code=postal_code,
-            business_hours=self._extract_field(data, ["営業時間", "営業日時", "利用時間", "開館時間"]),
+            business_hours=self._extract_field(
+                data, ["営業時間", "営業日時", "利用時間", "開館時間"]
+            ),
             closed_days=self._extract_field(data, ["定休日", "休館日", "休業日"]),
             detail_url=url,
             website=self._extract_field(data, ["URL", "公式サイト", "ホームページ", "Webサイト"]),
