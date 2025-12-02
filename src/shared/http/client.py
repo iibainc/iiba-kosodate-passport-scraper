@@ -1,5 +1,5 @@
 """HTTPクライアント（リトライ機能付き）"""
-import time
+
 from typing import Any, Optional
 
 import requests
@@ -42,9 +42,7 @@ class HTTPClient:
         self.max_retries = max_retries
         self.backoff_factor = backoff_factor
         self.status_forcelist = status_forcelist
-        self.user_agent = user_agent or (
-            "Mozilla/5.0 (compatible; IIBA-KosodateScraper/1.0)"
-        )
+        self.user_agent = user_agent or ("Mozilla/5.0 (compatible; IIBA-KosodateScraper/1.0)")
 
         self.session = self._create_session()
 

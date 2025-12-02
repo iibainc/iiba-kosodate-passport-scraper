@@ -1,4 +1,5 @@
 """スクレイピング機能のEnum定義"""
+
 from enum import Enum
 
 

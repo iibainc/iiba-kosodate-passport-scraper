@@ -1,12 +1,13 @@
 """スクレイパーの基底クラス"""
+
 import hashlib
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from ..domain.models import Shop
 from ....shared.http.client import HTTPClient
 from ....shared.http.rate_limiter import RateLimiter
 from ....shared.logging.config import get_logger
+from ..domain.models import Shop
 
 logger = get_logger(__name__)
 
@@ -31,13 +32,9 @@ class AbstractPrefectureScraper(ABC):
         self.prefecture_code = prefecture_code
         self.prefecture_name = prefecture_name
         self.http_client = http_client or HTTPClient()
-        self.rate_limiter = rate_limiter or RateLimiter(
-            requests_per_second=1.0, burst_size=1
-        )
+        self.rate_limiter = rate_limiter or RateLimiter(requests_per_second=1.0)
 
-        logger.info(
-            f"Scraper initialized: {self.prefecture_name} ({self.prefecture_code})"
-        )
+        logger.info(f"Scraper initialized: {self.prefecture_name} ({self.prefecture_code})")
 
     @abstractmethod
     def scrape(self) -> list[Shop]:

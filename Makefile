@@ -200,14 +200,14 @@ dev-setup: ## ローカル開発環境のセットアップ
 
 dev-start: ## Firestoreエミュレータを起動
 	@echo "Starting Firestore emulator..."
-	docker-compose up -d
+	docker compose up -d
 	@echo "✓ Firestore emulator started"
 	@echo "  Firestore: http://localhost:8080"
-	@echo "  Firestore UI: http://localhost:4000"
+	@echo "  Note: Firestore UI is currently disabled (Docker image not available)"
 
 dev-stop: ## Firestoreエミュレータを停止
 	@echo "Stopping Firestore emulator..."
-	docker-compose down
+	docker compose down
 	@echo "✓ Firestore emulator stopped"
 
 dev-run: ## ローカル開発環境でアプリケーションを起動
@@ -231,12 +231,12 @@ dev-scrape-ibaraki: ## ローカル環境で茨城県のスクレイピングを
 		curl -X POST "http://localhost:8000/scrape/08"
 
 dev-logs: ## Firestoreエミュレータのログを表示
-	docker-compose logs -f firestore
+	docker compose logs -f firestore
 
 dev-clean: ## ローカル開発環境をクリーンアップ
 	@echo "Cleaning local development environment..."
 	$(MAKE) dev-stop
-	docker-compose down -v
+	docker compose down -v
 	rm -f .env
 	@echo "✓ Local environment cleaned"
 

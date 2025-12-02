@@ -1,4 +1,5 @@
 """スクレイピング機能のドメインモデル"""
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional
@@ -133,7 +134,7 @@ class Shop:
             for part in ["市", "区", "町", "村"]:
                 if part in self.address:
                     idx = self.address.index(part)
-                    terms.append(self.address[:idx + 1])
+                    terms.append(self.address[: idx + 1])
 
         if self.category:
             terms.append(self.category)

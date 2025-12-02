@@ -1,4 +1,5 @@
 """通知機能のドメインモデル"""
+
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -24,7 +25,7 @@ class NotificationMessage:
     prefecture_code: Optional[str] = None  # 都道府県コード
     prefecture_name: Optional[str] = None  # 都道府県名
     timestamp: datetime = datetime.now()
-    metadata: dict[str, Any] = None  # 追加のメタデータ
+    metadata: Optional[dict[str, Any]] = None  # 追加のメタデータ
 
     def __post_init__(self) -> None:
         if self.metadata is None:
