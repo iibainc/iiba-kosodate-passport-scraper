@@ -54,7 +54,7 @@ class OsakaParser:
             # 基本情報の抽出
             address = normalize_text(data.get("JUSHO", ""))
             phone = extract_phone_number(data.get("TEL", ""))
-            
+
             # 郵便番号
             postal_code = data.get("YUBINNO", "")
             if postal_code == "0":
@@ -75,6 +75,7 @@ class OsakaParser:
             website = None
             if description and "http" in description:
                 import re
+
                 url_match = re.search(r"https?://[\w/:%#\$&\?\(\)~\.=\+\-]+", description)
                 if url_match:
                     website = url_match.group(0)
@@ -98,7 +99,7 @@ class OsakaParser:
 
             # 詳細URL（公式サイトの店舗詳細ページ）
             # chain店か個人店かでURLが変わるロジックがJSにあったが、ここではシンプルにIDベースで生成
-            # JSロジック: 
+            # JSロジック:
             # if(CHAINFLG=="0") URL = .../private/?page=ID
             # if(CHAINFLG=="1") URL = .../chain/?page=ID
             chain_flg = data.get("CHAINFLG", "0")

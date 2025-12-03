@@ -82,55 +82,48 @@ class OsakaScraper(AbstractPrefectureScraper):
         try:
             all_shops: list[Shop] = []
             current_batch: list[Shop] = []
-            
+
             # APIパラメータ設定
             group = self.config["scraping"]["api"]["group"]
             start_index = resume_from_page if resume_from_page else 0
-            
-            # APIのバッチサイズ（1回のリクエストで取得する件数）
-            # 設定ファイルから取得するか、デフォルト値を使用
-            api_batch_size = self.config["scraping"]["pagination"].get("batch_size", 10)
-            
+
             total_count = None
             fetched_count = 0
-            
+
             logger.info(f"Starting scraping from index {start_index}")
 
             with tqdm(desc="データ取得中", initial=start_index) as pbar:
                 while True:
                     # APIリクエスト
-                    params = {
-                        "GROUP": group,
-                        "START": start_index
-                    }
-                    
+                    params = {"GROUP": group, "START": start_index}
+
                     response = self.http_client.get(self.base_url, params=params)
                     data = response.json()
-                    
+
                     # ステータスチェック
                     status = data.get("STATUS")
                     if status not in (200, "200"):
                         logger.error(f"API returned error status: {status}")
                         break
-                        
+
                     # 総件数の更新
                     if total_count is None:
                         total_count = data.get("COUNT", 0)
                         pbar.total = total_count
                         logger.info(f"Total shops to fetch: {total_count}")
-                    
+
                     data_list = data.get("DATALIST", [])
                     if not data_list:
                         logger.info("No more data received")
                         break
-                        
+
                     # データ処理
                     for item in data_list:
                         shop = self.parser.parse(item)
                         if shop:
                             all_shops.append(shop)
                             current_batch.append(shop)
-                            
+
                             # バッチ処理
                             if batch_callback and len(current_batch) >= batch_size:
                                 try:
@@ -142,14 +135,14 @@ class OsakaScraper(AbstractPrefectureScraper):
                     fetched_count += len(data_list)
                     start_index += len(data_list)
                     pbar.update(len(data_list))
-                    
+
                     # 終了条件
                     if start_index >= total_count:
                         break
-                        
+
                     # レート制限
                     self.rate_limiter.wait()
-                    
+
                     # コールバック（ページ完了の代わりにバッチ完了として扱う）
                     if page_complete_callback:
                         try:
@@ -185,4 +178,3 @@ class OsakaScraper(AbstractPrefectureScraper):
         Note: Osaka uses API, so this method is not used.
         """
         return None
-
