@@ -10,6 +10,7 @@ from ..geocoding.services.geocoding_service import GeocodingService
 from ..notifications.providers.slack_notifier import SlackNotifier
 from ..scraping.scrapers.prefectures.aichi import AichiScraper
 from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
+from ..scraping.scrapers.prefectures.osaka import OsakaScraper
 from ..scraping.scrapers.prefectures.tokyo_csv_scraper import TokyoCsvScraper
 from ..storage.clients.firestore_client import FirestoreClient
 from ..storage.repositories.history_repository import HistoryRepository
@@ -132,11 +133,41 @@ class BatchOrchestrator:
             self.run_tokyo_scraping()
         elif prefecture_code == "23":
             self.run_aichi_scraping()
+        elif prefecture_code == "27":
+            self.run_osaka_scraping()
         else:
             raise ValueError(
                 f"Unsupported prefecture code: {prefecture_code}. "
-                f"Currently, only Ibaraki (08), Tokyo (13), and Aichi (23) are supported."
+                f"Currently, only Ibaraki (08), Tokyo (13), Aichi (23), and Osaka (27) are supported."
             )
+
+    def run_osaka_scraping(self) -> None:
+        """大阪府のスクレイピングジョブを実行"""
+        logger.info("Starting Osaka scraping job")
+
+        # HTTPクライアントを作成
+        http_client = HTTPClient(
+            timeout=self.settings.scraping_timeout,
+            max_retries=self.settings.scraping_retry,
+            user_agent=self.settings.scraping_user_agent,
+        )
+
+        # スクレイパーを作成
+        scraper = OsakaScraper(http_client=http_client)
+
+        # ジョブを実行
+        job = PrefectureScrapingJob(
+            scraper=scraper,
+            geocoding_service=self.geocoding_service,
+            shop_repository=self.shop_repository,
+            history_repository=self.history_repository,
+            progress_repository=self.progress_repository,
+            slack_notifier=self.slack_notifier,
+        )
+
+        result = job.execute()
+
+        logger.info(f"Osaka scraping job completed: {result.status.value}")
 
     def run_aichi_scraping(self) -> None:
         """愛知県のスクレイピングジョブを実行"""
