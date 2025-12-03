@@ -3,9 +3,7 @@ services:
   firestore:
     image: google/cloud-sdk:latest
     command: >
-      gcloud emulators firestore start
-      --host-port=0.0.0.0:8080
-      --project=local-dev
+      gcloud emulators firestore start --host-port=0.0.0.0:8080 --project=local-dev
     ports:
       - "8080:8080"
     environment:

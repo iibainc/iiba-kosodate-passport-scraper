@@ -37,6 +37,11 @@ def main():
     # 設定を読み込み
     settings = Settings()
 
+    # Firestoreエミュレータの設定を環境変数に反映
+    if settings.firestore_emulator_host:
+        import os
+        os.environ["FIRESTORE_EMULATOR_HOST"] = settings.firestore_emulator_host
+
     # ロギングを設定
     log_level = "DEBUG" if args.debug else settings.log_level
     setup_logging(level=log_level)

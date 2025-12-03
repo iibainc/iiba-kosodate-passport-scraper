@@ -217,18 +217,15 @@ dev-run: ## ローカル開発環境でアプリケーションを起動
 		echo "Creating .env from .env.development..."; \
 		cp .env.development .env; \
 	fi
-	@export $$(cat .env.development | grep -v '^#' | xargs) && \
-		$(PYTHON) -m uvicorn src.server:app --reload --host 0.0.0.0 --port 8000 --log-level debug
+	$(PYTHON) -m uvicorn src.server:app --reload --host 0.0.0.0 --port 8000 --log-level debug
 
 dev-debug: ## デバッグモードでアプリケーションを起動（pdb利用可能）
 	@echo "Starting application (debug mode)..."
-	@export $$(cat .env.development | grep -v '^#' | xargs) && \
-		$(PYTHON) -m src.server
+	$(PYTHON) -m src.server
 
 dev-scrape-ibaraki: ## ローカル環境で茨城県のスクレイピングを実行
 	@echo "Running Ibaraki scraping (local)..."
-	@export $$(cat .env.development | grep -v '^#' | xargs) && \
-		curl -X POST "http://localhost:8000/scrape/08"
+	curl -X POST "http://localhost:8000/scrape/08"
 
 dev-logs: ## Firestoreエミュレータのログを表示
 	docker compose logs -f firestore

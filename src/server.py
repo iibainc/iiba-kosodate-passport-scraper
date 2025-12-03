@@ -1,5 +1,6 @@
 """Cloud Run用HTTPサーバー（FastAPI）"""
 
+import os
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
@@ -9,8 +10,13 @@ from .features.batch.orchestrator import BatchOrchestrator
 from .infrastructure.config.settings import Settings
 from .shared.logging.config import get_logger, setup_logging
 
-# 設定を読み込み（環境変数から読み込まれる）
-settings = Settings()  # type: ignore[call-arg]
+# 設定を読み込み
+settings = Settings()
+
+# ローカル開発環境でエミュレータを使用する場合、環境変数を設定
+# google-cloud-firestoreライブラリがこの環境変数を参照するため
+if settings.firestore_emulator_host:
+    os.environ["FIRESTORE_EMULATOR_HOST"] = settings.firestore_emulator_host
 
 # ロギングを設定
 setup_logging(level=settings.log_level)
