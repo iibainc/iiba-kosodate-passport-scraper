@@ -1,0 +1,17 @@
+prefecture:
+  code: "28"
+  name: "兵庫県"
+  name_en: "hyogo"
+
+scraping:
+  base_url: "https://www.hyogo-kosodate.jp"
+  api_url: "https://www.hyogo-kosodate.jp/HKO_API/JSAPI/jsapi/spot"
+  encoding: "utf-8"
+
+  params:
+    type: "landmark"
+    limit: 10000
+
+  rate_limit:
+    sleep_min: 1.0
+    sleep_max: 2.0
