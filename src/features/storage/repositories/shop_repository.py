@@ -1,10 +1,11 @@
 """店舗リポジトリ"""
+
 from datetime import datetime
 from typing import Any, Optional
 
-from ...scraping.domain.models import Shop
 from ....shared.exceptions.errors import StorageError, ValidationError
 from ....shared.logging.config import get_logger
+from ...scraping.domain.models import Shop
 from ..clients.firestore_client import FirestoreClient
 
 logger = get_logger(__name__)
@@ -86,9 +87,7 @@ class ShopRepository:
 
         try:
             # 既存店舗IDを取得
-            existing_ids = self._get_existing_shop_ids(
-                [shop.shop_id for shop in shops]
-            )
+            existing_ids = self._get_existing_shop_ids([shop.shop_id for shop in shops])
 
             # 店舗をFirestore形式に変換
             shop_dicts = []
@@ -97,9 +96,7 @@ class ShopRepository:
                 try:
                     self._validate_shop(shop)
                 except ValidationError as e:
-                    logger.warning(
-                        f"Skipping invalid shop {shop.shop_id}: {e}"
-                    )
+                    logger.warning(f"Skipping invalid shop {shop.shop_id}: {e}")
                     continue
 
                 # 更新日時を設定
@@ -114,13 +111,9 @@ class ShopRepository:
                 shop_dicts.append(shop.to_firestore_dict())
 
             # バッチ書き込み
-            self.client.batch_write(
-                self.COLLECTION_NAME, shop_dicts, id_field="shop_id"
-            )
+            self.client.batch_write(self.COLLECTION_NAME, shop_dicts, id_field="shop_id")
 
-            logger.info(
-                f"Batch save completed: {new_count} created, {updated_count} updated"
-            )
+            logger.info(f"Batch save completed: {new_count} created, {updated_count} updated")
 
             return {"created": new_count, "updated": updated_count}
 
@@ -167,21 +160,15 @@ class ShopRepository:
             if is_active:
                 filters.append(("is_active", "==", True))
 
-            docs = self.client.query_documents(
-                self.COLLECTION_NAME, filters=filters, limit=limit
-            )
+            docs = self.client.query_documents(self.COLLECTION_NAME, filters=filters, limit=limit)
 
             shops = [Shop.from_firestore_dict(doc) for doc in docs]
-            logger.info(
-                f"Retrieved {len(shops)} shops for prefecture {prefecture_code}"
-            )
+            logger.info(f"Retrieved {len(shops)} shops for prefecture {prefecture_code}")
 
             return shops
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to get shops for prefecture {prefecture_code}: {e}"
-            ) from e
+            raise StorageError(f"Failed to get shops for prefecture {prefecture_code}: {e}") from e
 
     def search_by_name(
         self, name: str, prefecture_code: Optional[str] = None, limit: int = 100
@@ -208,9 +195,7 @@ class ShopRepository:
 
             # search_termsフィールドを使用した検索
             # （完全一致のみ、部分一致は後でクライアント側でフィルタリング）
-            docs = self.client.query_documents(
-                self.COLLECTION_NAME, filters=filters
-            )
+            docs = self.client.query_documents(self.COLLECTION_NAME, filters=filters)
 
             # クライアント側で店名による部分一致フィルタリング
             shops = []
@@ -287,9 +272,7 @@ class ShopRepository:
         except Exception as e:
             raise StorageError(f"Failed to delete shop {shop_id}: {e}") from e
 
-    def update_geocoding(
-        self, shop_id: str, latitude: float, longitude: float
-    ) -> None:
+    def update_geocoding(self, shop_id: str, latitude: float, longitude: float) -> None:
         """
         ジオコーディング情報を更新
 
@@ -306,14 +289,10 @@ class ShopRepository:
                 "updated_at": datetime.now(),
             }
             self.client.update_document(self.COLLECTION_NAME, shop_id, updates)
-            logger.info(
-                f"Geocoding updated for shop {shop_id}: ({latitude}, {longitude})"
-            )
+            logger.info(f"Geocoding updated for shop {shop_id}: ({latitude}, {longitude})")
 
         except Exception as e:
-            raise StorageError(
-                f"Failed to update geocoding for shop {shop_id}: {e}"
-            ) from e
+            raise StorageError(f"Failed to update geocoding for shop {shop_id}: {e}") from e
 
     def _validate_shop(self, shop: Shop) -> None:
         """

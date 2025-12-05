@@ -1,4 +1,5 @@
 """テキスト処理ユーティリティ"""
+
 import re
 from typing import Optional
 
@@ -88,7 +89,7 @@ def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
     if not text or len(text) <= max_length:
         return text
 
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix
 
 
 def remove_html_tags(text: str) -> str:

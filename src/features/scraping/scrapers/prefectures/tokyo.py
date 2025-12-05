@@ -1,4 +1,5 @@
 """東京都スクレイパー"""
+
 import re
 from typing import Optional
 from urllib.parse import urljoin, urlparse
@@ -6,13 +7,13 @@ from urllib.parse import urljoin, urlparse
 import yaml
 from tqdm import tqdm
 
-from ...domain.models import Shop
 from .....shared.exceptions.errors import HTTPError, ParsingError, ScraperError, SessionError
 from .....shared.http.client import HTTPClient
 from .....shared.http.rate_limiter import RateLimiter
 from .....shared.logging.config import get_logger
-from ..base import AbstractPrefectureScraper
+from ...domain.models import Shop
 from ...parsers.prefectures.tokyo_parser import TokyoParser
+from ..base import AbstractPrefectureScraper
 
 logger = get_logger(__name__)
 
@@ -163,7 +164,10 @@ class TokyoScraper(AbstractPrefectureScraper):
 
                             # 重複ページ検出（前ページと完全に同じリンクセットの場合）
                             current_links_set = set(detail_links)
-                            if previous_links_set is not None and current_links_set == previous_links_set:
+                            if (
+                                previous_links_set is not None
+                                and current_links_set == previous_links_set
+                            ):
                                 duplicate_page_count += 1
                                 logger.info(
                                     f"Page {page_num} has identical links as previous page "
@@ -184,9 +188,7 @@ class TokyoScraper(AbstractPrefectureScraper):
                     self.rate_limiter.wait()
 
                     # 各詳細ページをパース
-                    for detail_url in tqdm(
-                        detail_links, leave=False, desc=f"詳細({page_num})"
-                    ):
+                    for detail_url in tqdm(detail_links, leave=False, desc=f"詳細({page_num})"):
                         if detail_url in seen_urls:
                             continue
 
@@ -233,9 +235,7 @@ class TokyoScraper(AbstractPrefectureScraper):
                 except Exception as e:
                     logger.error(f"Final batch callback failed: {e}")
 
-            logger.info(
-                f"Scraping completed: {len(all_shops)} shops found"
-            )
+            logger.info(f"Scraping completed: {len(all_shops)} shops found")
             return all_shops
 
         except Exception as e:
@@ -265,9 +265,7 @@ class TokyoScraper(AbstractPrefectureScraper):
             html = response.text
 
             # 詳細リンクを抽出
-            detail_pattern = re.compile(
-                self.config["scraping"]["urls"]["detail_pattern"]
-            )
+            detail_pattern = re.compile(self.config["scraping"]["urls"]["detail_pattern"])
 
             links: list[str] = []
             seen: set[str] = set()
@@ -286,9 +284,10 @@ class TokyoScraper(AbstractPrefectureScraper):
                 full_url = urljoin(list_url, href)
 
                 # 同一ドメインのみ
-                if urlparse(full_url).netloc and urlparse(full_url).netloc != urlparse(
-                    self.base_url
-                ).netloc:
+                if (
+                    urlparse(full_url).netloc
+                    and urlparse(full_url).netloc != urlparse(self.base_url).netloc
+                ):
                     continue
 
                 # 詳細ページのパターンにマッチするか確認
@@ -297,18 +296,14 @@ class TokyoScraper(AbstractPrefectureScraper):
                         seen.add(full_url)
                         links.append(full_url)
 
-            logger.debug(
-                f"Found {len(links)} detail links on page {page_num}"
-            )
+            logger.debug(f"Found {len(links)} detail links on page {page_num}")
             return links
 
         except HTTPError as e:
             logger.error(f"Failed to get detail links from page {page_num}: {e}")
             return []
         except Exception as e:
-            logger.error(
-                f"Unexpected error while getting detail links from page {page_num}: {e}"
-            )
+            logger.error(f"Unexpected error while getting detail links from page {page_num}: {e}")
             return []
 
     def parse_detail_page(self, url: str) -> Optional[Shop]:

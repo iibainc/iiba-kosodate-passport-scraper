@@ -1,4 +1,5 @@
 """ロギング設定"""
+
 import logging
 import sys
 from typing import Optional

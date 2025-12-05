@@ -1,18 +1,19 @@
 """東京都CSVスクレイパー"""
+
 import csv
-from typing import Optional
 from io import StringIO
+from typing import Optional
 
 import yaml
 from tqdm import tqdm
 
-from ...domain.models import Shop
 from .....shared.exceptions.errors import HTTPError, ParsingError, ScraperError
 from .....shared.http.client import HTTPClient
 from .....shared.http.rate_limiter import RateLimiter
 from .....shared.logging.config import get_logger
-from ..base import AbstractPrefectureScraper
+from ...domain.models import Shop
 from ...parsers.prefectures.tokyo_csv_parser import TokyoCsvParser
+from ..base import AbstractPrefectureScraper
 
 logger = get_logger(__name__)
 
@@ -124,7 +125,7 @@ class TokyoCsvScraper(AbstractPrefectureScraper):
             response = self.http_client.get(self.csv_url)
 
             # Shift-JIS → UTF-8に変換（エラー文字は置換）
-            csv_text = response.content.decode(self.encoding, errors='replace')
+            csv_text = response.content.decode(self.encoding, errors="replace")
 
             logger.info(f"CSV downloaded: {len(csv_text)} bytes")
             return csv_text

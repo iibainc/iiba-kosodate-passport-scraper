@@ -1,17 +1,14 @@
 """京都府の店舗情報パーサー"""
+
 import re
 from datetime import datetime
 from typing import Any, Optional
 
 from bs4 import BeautifulSoup
 
-from ...domain.models import Shop
 from .....shared.logging.config import get_logger
-from .....shared.utils.text import (
-    extract_phone_number,
-    extract_postal_code,
-    normalize_text,
-)
+from .....shared.utils.text import extract_phone_number, extract_postal_code, normalize_text
+from ...domain.models import Shop
 from ..base import BaseParser
 
 logger = get_logger(__name__)
@@ -90,12 +87,12 @@ class KyotoParser(BaseParser):
         # 1. 記事本文内のタイトルをピンポイントで探す
         # WordPressなどのCMSでよくある「メインコンテンツ内のタイトル」クラス
         priority_selectors = [
-            "article h1",           # articleタグ内のh1 (最も確実)
-            "main h1",              # mainタグ内のh1
-            ".post h1",             # postクラス内のh1
-            ".entry-header h1",     # エントリーヘッダー内のh1
-            ".entry-title",         # WordPress標準タイトルクラス
-            "#content h1",          # コンテンツエリア内のh1
+            "article h1",  # articleタグ内のh1 (最も確実)
+            "main h1",  # mainタグ内のh1
+            ".post h1",  # postクラス内のh1
+            ".entry-header h1",  # エントリーヘッダー内のh1
+            ".entry-title",  # WordPress標準タイトルクラス
+            "#content h1",  # コンテンツエリア内のh1
         ]
 
         for selector in priority_selectors:
@@ -115,9 +112,11 @@ class KyotoParser(BaseParser):
                         parts = title_text.split(sep)
                         # 一番左側が店名であることが多い
                         candidate = parts[0].strip()
-                        if candidate and all(generic not in candidate for generic in self.GENERIC_TITLES):
+                        if candidate and all(
+                            generic not in candidate for generic in self.GENERIC_TITLES
+                        ):
                             return candidate
-                
+
                 # 区切り文字がない場合でも、除外ワードが含まれていなければ採用
                 if all(generic not in title_text for generic in self.GENERIC_TITLES):
                     return title_text
@@ -168,9 +167,7 @@ class KyotoParser(BaseParser):
                     "きょうと子育て応援パスポート提示特典",
                 ],
             ),
-            description=self._extract_field(
-                data, ["備考", "PR", "紹介文", "お店からのメッセージ"]
-            ),
+            description=self._extract_field(data, ["備考", "PR", "紹介文", "お店からのメッセージ"]),
             parking=self._extract_field(data, ["駐車場情報"]),
             category=self._extract_field(data, ["業種", "ジャンル", "カテゴリ"]),
             genre=self._extract_field(data, ["業種詳細", "サブジャンル"]),
@@ -181,13 +178,21 @@ class KyotoParser(BaseParser):
 
         # その他のフィールドをextra_fieldsに保存
         excluded_keys = {
-            "名称", "店舗名", "施設名",
-            "所在地", "住所",
-            "電話番号", "TEL",
-            "営業時間", "定休日",
-            "URL", "ホームページ",
-            "特典内容", "サービス内容",
-            "備考", "PR",
+            "名称",
+            "店舗名",
+            "施設名",
+            "所在地",
+            "住所",
+            "電話番号",
+            "TEL",
+            "営業時間",
+            "定休日",
+            "URL",
+            "ホームページ",
+            "特典内容",
+            "サービス内容",
+            "備考",
+            "PR",
             "駐車場",
             "業種",
             "アクセス",

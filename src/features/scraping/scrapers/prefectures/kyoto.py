@@ -1,4 +1,5 @@
 """京都府スクレイパー"""
+
 import re
 from typing import Optional
 from urllib.parse import urljoin, urlparse
@@ -6,13 +7,13 @@ from urllib.parse import urljoin, urlparse
 import yaml
 from tqdm import tqdm
 
-from ...domain.models import Shop
 from .....shared.exceptions.errors import HTTPError, ParsingError, ScraperError, SessionError
 from .....shared.http.client import HTTPClient
 from .....shared.http.rate_limiter import RateLimiter
 from .....shared.logging.config import get_logger
-from ..base import AbstractPrefectureScraper
+from ...domain.models import Shop
 from ...parsers.prefectures.kyoto_parser import KyotoParser
+from ..base import AbstractPrefectureScraper
 
 logger = get_logger(__name__)
 
@@ -54,7 +55,7 @@ class KyotoScraper(AbstractPrefectureScraper):
 
         self.base_url = self.config["scraping"]["base_url"]
         self.encoding = self.config["scraping"]["encoding"]
-        
+
         # 京都用パーサーを使用
         self.parser = KyotoParser(prefecture_code, prefecture_name)
 
@@ -127,14 +128,21 @@ class KyotoScraper(AbstractPrefectureScraper):
                                 break
                         else:
                             empty_page_count = 0
-                            
+
                             # 重複検出
                             current_links_set = set(detail_links)
-                            if previous_links_set is not None and current_links_set == previous_links_set:
+                            if (
+                                previous_links_set is not None
+                                and current_links_set == previous_links_set
+                            ):
                                 duplicate_page_count += 1
-                                logger.info(f"Duplicate page detected ({duplicate_page_count}/{max_duplicate_pages})")
+                                logger.info(
+                                    f"Duplicate page detected ({duplicate_page_count}/{max_duplicate_pages})"
+                                )
                                 if duplicate_page_count >= max_duplicate_pages:
-                                    logger.info("Reached max consecutive duplicate pages. Stopping.")
+                                    logger.info(
+                                        "Reached max consecutive duplicate pages. Stopping."
+                                    )
                                     break
                             else:
                                 duplicate_page_count = 0
@@ -144,9 +152,7 @@ class KyotoScraper(AbstractPrefectureScraper):
                     self.rate_limiter.wait()
 
                     # 各詳細ページをパース
-                    for detail_url in tqdm(
-                        detail_links, leave=False, desc=f"詳細({page_num})"
-                    ):
+                    for detail_url in tqdm(detail_links, leave=False, desc=f"詳細({page_num})"):
                         if detail_url in seen_urls:
                             continue
 
@@ -195,7 +201,7 @@ class KyotoScraper(AbstractPrefectureScraper):
         try:
             # 一覧ページURLを構築
             list_url_template = self.config["scraping"]["urls"]["list_page"]
-            
+
             # 京都はセッショントークン不要、ページ番号のみ埋め込み
             list_url = self.base_url + list_url_template.format(page=page_num)
 
@@ -204,14 +210,13 @@ class KyotoScraper(AbstractPrefectureScraper):
             html = response.text
 
             # 詳細リンクを抽出
-            detail_pattern = re.compile(
-                self.config["scraping"]["urls"]["detail_pattern"]
-            )
+            detail_pattern = re.compile(self.config["scraping"]["urls"]["detail_pattern"])
 
             links: list[str] = []
             seen: set[str] = set()
 
             from bs4 import BeautifulSoup
+
             soup = BeautifulSoup(html, "html.parser")
 
             for a_tag in soup.select("a"):
@@ -222,7 +227,10 @@ class KyotoScraper(AbstractPrefectureScraper):
                 full_url = urljoin(list_url, href)
 
                 # 同一ドメインのみ
-                if urlparse(full_url).netloc and urlparse(full_url).netloc != urlparse(self.base_url).netloc:
+                if (
+                    urlparse(full_url).netloc
+                    and urlparse(full_url).netloc != urlparse(self.base_url).netloc
+                ):
                     continue
 
                 if detail_pattern.search(full_url):

@@ -1,4 +1,5 @@
 """レート制限（ポライトクローリング）ユーティリティ"""
+
 import random
 import time
 from typing import Optional
