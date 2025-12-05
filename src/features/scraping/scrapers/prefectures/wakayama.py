@@ -90,14 +90,16 @@ class WakayamaScraper(AbstractPrefectureScraper):
             pagination = self.config["scraping"]["pagination"]
             start_page = resume_from_page if resume_from_page else pagination["start_page"]
             end_page = pagination["end_page"]
-            
+
             # auto_detectの場合はend_pageを無視して無限ループに近い形にするが、
             # 和歌山県はページ数が分かっているのでend_pageを上限にする
             auto_detect = pagination.get("auto_detect", False)
             max_empty_pages = pagination.get("max_empty_pages", 3)
             empty_page_count = 0
 
-            logger.info(f"Starting scraping: pages {start_page} to {end_page} (batch_size={batch_size})")
+            logger.info(
+                f"Starting scraping: pages {start_page} to {end_page} (batch_size={batch_size})"
+            )
 
             page_num = start_page
 
@@ -112,7 +114,9 @@ class WakayamaScraper(AbstractPrefectureScraper):
 
                 if not detail_links:
                     empty_page_count += 1
-                    logger.info(f"No links found on page {page_num} (empty count: {empty_page_count}/{max_empty_pages})")
+                    logger.info(
+                        f"No links found on page {page_num} (empty count: {empty_page_count}/{max_empty_pages})"
+                    )
                     if auto_detect and empty_page_count >= max_empty_pages:
                         logger.info("Reached max empty pages. Stopping scraping.")
                         break
@@ -196,23 +200,25 @@ class WakayamaScraper(AbstractPrefectureScraper):
 
             # BeautifulSoupでパース
             from bs4 import BeautifulSoup
+
             soup = BeautifulSoup(html, "html.parser")
 
             links: list[str] = []
-            
+
             # テーブル内のリンクを抽出
             # div.tbl-r02 table tbody tr td a
             # あるいは正規表現で抽出
-            
+
             # 正規表現で抽出（シンプルで確実）
             import re
+
             detail_pattern = re.compile(self.config["scraping"]["urls"]["detail_pattern"])
-            
+
             for a_tag in soup.select("a"):
                 href = a_tag.get("href", "")
                 if not href:
                     continue
-                
+
                 if detail_pattern.search(href):
                     full_url = urljoin(list_url, href)
                     links.append(full_url)

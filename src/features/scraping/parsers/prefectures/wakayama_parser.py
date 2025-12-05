@@ -85,7 +85,7 @@ class WakayamaParser(BaseParser):
             td = th.find_next_sibling("td")
             if td:
                 return normalize_text(td.get_text())
-        
+
         # 見つからない場合はextract_table_dataの結果に依存するが、
         # ここではNoneを返して呼び出し元で処理させるか、あるいはNoneを返す
         return None
@@ -133,12 +133,12 @@ class WakayamaParser(BaseParser):
             description=self._extract_field(data, ["店舗のPRポイント"]),
             parking=self._extract_field(data, ["駐車場の有無"]),
             category=self._extract_field(data, ["カテゴリー"]),
-            genre=None, # 和歌山県はジャンルがない場合が多い、あるいはカテゴリーと同じ
+            genre=None,  # 和歌山県はジャンルがない場合が多い、あるいはカテゴリーと同じ
             scraped_at=datetime.now(),
             updated_at=datetime.now(),
             is_active=True,
         )
-        
+
         # 多子世帯向け特典内容があればextra_fieldsに追加
         multi_child_benefit = self._extract_field(data, ["多子世帯向け特典内容"])
         if multi_child_benefit:
@@ -148,7 +148,7 @@ class WakayamaParser(BaseParser):
         target = self._extract_field(data, ["対象者"])
         if target:
             shop.extra_fields["対象者"] = target
-            
+
         # 交通アクセスがあればextra_fieldsに追加
         access = self._extract_field(data, ["交通アクセス"])
         if access:
@@ -176,7 +176,7 @@ class WakayamaParser(BaseParser):
         if address:
             return extract_postal_code(address)
         return None
-    
+
     def _extract_website(self, data: dict[str, str], soup: BeautifulSoup) -> Optional[str]:
         """WebサイトURLを抽出"""
         # 店舗の名称がリンクになっている場合がある
