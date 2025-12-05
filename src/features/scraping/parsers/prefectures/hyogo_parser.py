@@ -36,12 +36,15 @@ class HyogoParser(BaseParser):
             Optional[Shop]: 店舗オブジェクト（パース失敗時はNone）
         """
         try:
-            shop_id = item.get("item_id")
+            item_id = item.get("item_id")
             shop_name = item.get("item_name")
 
-            if not shop_id or not shop_name:
-                logger.warning(f"Missing required fields: shop_id={shop_id}, name={shop_name}")
+            if not item_id or not shop_name:
+                logger.warning(f"Missing required fields: item_id={item_id}, name={shop_name}")
                 return None
+
+            # shop_idを都道府県コード付きの形式に変換（例: "28_LND0000270"）
+            shop_id = f"{self.prefecture_code}_{item_id}"
 
             # explanationフィールドはJSON文字列なのでパースする
             explanation_str = item.get("explanation", "{}")
