@@ -55,17 +55,17 @@ class NaraParser(BaseParser):
             shop_id = f"{self.prefecture_code}_{original_id}"
 
             name = data.get("Name", "")
-            
+
             # 住所の構築
             state = data.get("State__c", "")
             city = data.get("City__c", "")
             street = data.get("Street__c", "")
             building = data.get("BldgName_RoomNum__c", "")
-            
+
             address = f"{state}{city}{street}"
             if building:
                 address += f" {building}"
-            
+
             # Postal Code
             postal_code = data.get("PostalCode__c", "")
             if postal_code and "-" not in postal_code and len(postal_code) == 7:
@@ -81,24 +81,26 @@ class NaraParser(BaseParser):
                 phone=data.get("TelephoneNumber__c"),
                 postal_code=postal_code,
                 business_hours=None,  # APIデータには含まれていない模様
-                closed_days=None,     # APIデータには含まれていない模様
+                closed_days=None,  # APIデータには含まれていない模様
                 detail_url=f"https://nsa.pref.nara.jp/ctz/baseDetail?id={original_id}",
                 website=data.get("URL__c"),
                 benefits=data.get("BenefitsContent__c"),
                 description=data.get("StoreIntroductions__c"),
                 parking=None,
-                category=data.get("StoreServiceCategory__c"), # 例: "割引;プレゼント"
-                genre=data.get("StoreGenre__c"),             # 例: "飲食;お買い物"
+                category=data.get("StoreServiceCategory__c"),  # 例: "割引;プレゼント"
+                genre=data.get("StoreGenre__c"),  # 例: "飲食;お買い物"
                 scraped_at=datetime.now(),
                 updated_at=datetime.now(),
                 is_active=data.get("IsPublic__c", True),
             )
-            
+
             # その他フィールド
             shop.extra_fields["original_id"] = original_id
             shop.extra_fields["IsPapas"] = data.get("IsPapas__c")
-            shop.extra_fields["RaisingChildrenUsedService"] = data.get("RaisingChildrenUsedService__c")
-            
+            shop.extra_fields["RaisingChildrenUsedService"] = data.get(
+                "RaisingChildrenUsedService__c"
+            )
+
             return shop
 
         except Exception as e:

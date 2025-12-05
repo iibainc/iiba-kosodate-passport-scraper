@@ -69,7 +69,7 @@ class NaraScraper(AbstractPrefectureScraper):
     ) -> list[Shop]:
         """
         店舗情報をスクレイピング
-        
+
         APIから全店舗IDリストを取得し、個別に詳細情報を取得する
 
         Args:
@@ -86,26 +86,26 @@ class NaraScraper(AbstractPrefectureScraper):
             # 1. 全店舗リストを取得
             logger.info("Fetching shop list from API...")
             list_payload = self.config["scraping"]["list_payload"]
-            
+
             response = self.http_client.post(self.api_url, json=list_payload)
             response_data = response.json()
-            
+
             # エラーチェック
             if "error" in response_data:
                 logger.error(f"API Error: {response_data['error']}")
                 raise ScraperError(f"API returned error: {response_data['error']}")
-                
+
             shop_list = response_data.get("returnValue", [])
             if not shop_list:
                 logger.warning("No shops found in list response")
                 return []
-                
+
             total_shops = len(shop_list)
             logger.info(f"Found {total_shops} shops in list")
 
             all_shops: list[Shop] = []
             current_batch: list[Shop] = []
-            
+
             # 再開位置の計算
             start_index = 0
             if resume_from_page and resume_from_page > 1:
@@ -129,29 +129,29 @@ class NaraScraper(AbstractPrefectureScraper):
                     # yaml.safe_loadで辞書になっているので、paramsの中身をコピー
                     detail_payload["params"] = detail_payload["params"].copy()
                     detail_payload["params"]["baseId"] = shop_id
-                    
+
                     detail_resp = self.http_client.post(self.api_url, json=detail_payload)
                     detail_data = detail_resp.json()
-                    
+
                     # 詳細データ抽出
                     shop_data = detail_data.get("returnValue")
                     if not shop_data:
                         logger.warning(f"No detail data for {shop_id}")
                         continue
-                        
+
                     # パース
                     shop = self.parser.parse_shop_detail(shop_data)
-                    
+
                     if shop:
                         all_shops.append(shop)
                         current_batch.append(shop)
-                        
+
                         # バッチ処理
                         if len(current_batch) >= batch_size:
                             if batch_callback:
                                 batch_callback(current_batch)
                             current_batch = []
-                            
+
                             # 擬似的なページ完了コールバック（バッチごと）
                             if page_complete_callback:
                                 current_page = (i // batch_size) + 1
@@ -160,7 +160,7 @@ class NaraScraper(AbstractPrefectureScraper):
                 except Exception as e:
                     logger.error(f"Error processing shop {shop_id}: {e}")
                     # 個別のエラーはログに出して続行
-                
+
                 # レート制限
                 self.rate_limiter.wait()
 
@@ -176,7 +176,13 @@ class NaraScraper(AbstractPrefectureScraper):
 
     # 以下のメソッドは親クラスの抽象メソッド実装のため必要だが、scrape()をオーバーライドしているので使用されない
     def get_detail_links(self, page_num: int) -> list[str]:
+        """
+        親クラスの抽象メソッド実装（このスクレイパーでは使用しない）
+        """
         return []
 
     def parse_detail_page(self, url: str) -> Optional[Shop]:
+        """
+        親クラスの抽象メソッド実装（このスクレイパーでは使用しない）
+        """
         return None
