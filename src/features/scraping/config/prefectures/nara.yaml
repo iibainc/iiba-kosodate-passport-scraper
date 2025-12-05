@@ -1,0 +1,53 @@
+prefecture:
+  code: "29"  # 奈良県
+  name: "奈良県"
+  name_en: "nara"
+
+scraping:
+  base_url: "https://nsa.pref.nara.jp"
+  api_url: "https://nsa.pref.nara.jp/ctz/webruntime/api/apex/execute"
+  
+  # API Payloads
+  list_payload:
+    classname: "PTL_SearchResultCtrl"
+    method: "searchBase"
+    namespace: ""
+    cacheable: false
+    isContinuation: false
+    params:
+      category: []
+      genre: []
+      city: []
+      freeWord: ""
+      limitSize: 10000
+
+  detail_payload:
+    classname: "PTL_BaseDetailCtrl"
+    method: "getBase"
+    namespace: ""
+    cacheable: false
+    isContinuation: false
+    params:
+      baseId: ""  # Set dynamically
+
+  encoding: "utf-8"
+
+  # Standard config (mostly unused but kept for schema compliance)
+  urls:
+    search_form: ""
+    list_page: ""
+    detail_pattern: ""
+
+  pagination:
+    start_page: 1
+    end_page: 1
+    auto_detect: false
+
+  session:
+    required: false
+
+  selectors: {}
+
+  rate_limit:
+    sleep_min: 0.5
+    sleep_max: 1.0
