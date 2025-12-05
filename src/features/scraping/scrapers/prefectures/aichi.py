@@ -1,4 +1,4 @@
-"""茨城県スクレイパー"""
+"""愛知県スクレイパー"""
 
 import re
 from typing import Optional
@@ -12,18 +12,24 @@ from .....shared.http.client import HTTPClient
 from .....shared.http.rate_limiter import RateLimiter
 from .....shared.logging.config import get_logger
 from ...domain.models import Shop
-from ...parsers.prefectures.ibaraki_parser import IbarakiParser
+from ...parsers.prefectures.aichi_parser import AichiParser
 from ..base import AbstractPrefectureScraper
 
 logger = get_logger(__name__)
 
 
-class IbarakiScraper(AbstractPrefectureScraper):
-    """茨城県の店舗情報スクレイパー"""
+class AichiScraper(AbstractPrefectureScraper):
+    """
+    愛知県の店舗情報スクレイパー
+
+    TODO: 以下を確認・調整：
+    - セッショントークンの必要性（_init_session()）
+    - URL構造（get_detail_links()）
+    """
 
     def __init__(
         self,
-        config_path: str = "src/features/scraping/config/prefectures/ibaraki.yaml",
+        config_path: str = "src/features/scraping/config/prefectures/aichi.yaml",
         http_client: Optional[HTTPClient] = None,
     ) -> None:
         """
@@ -55,12 +61,12 @@ class IbarakiScraper(AbstractPrefectureScraper):
 
         self.base_url = self.config["scraping"]["base_url"]
         self.encoding = self.config["scraping"]["encoding"]
-        self.parser = IbarakiParser(prefecture_code, prefecture_name)
+        self.parser = AichiParser(prefecture_code, prefecture_name)
 
         # セッションとトークン
         self.session_token: Optional[str] = None
 
-        logger.info(f"IbarakiScraper initialized: {self.base_url}")
+        logger.info(f"AichiScraper initialized: {self.base_url}")
 
     def scrape(
         self,
@@ -88,7 +94,8 @@ class IbarakiScraper(AbstractPrefectureScraper):
             # セッショントークンを取得
             self._init_session()
 
-            if not self.session_token:
+            # TODO: セッションが不要な場合はこのチェックを削除
+            if self.config["scraping"]["session"]["required"] and not self.session_token:
                 raise SessionError("Failed to initialize session token")
 
             # 全ページから店舗情報を収集
@@ -245,9 +252,14 @@ class IbarakiScraper(AbstractPrefectureScraper):
         try:
             # 一覧ページURLを構築
             list_url_template = self.config["scraping"]["urls"]["list_page"]
-            list_url = self.base_url + list_url_template.format(
-                page=page_num, xs=self.session_token
-            )
+
+            # TODO: URLパラメータの構築方法を調整
+            if self.session_token:
+                list_url = self.base_url + list_url_template.format(
+                    page=page_num, xs=self.session_token
+                )
+            else:
+                list_url = self.base_url + list_url_template.format(page=page_num)
 
             # ページを取得
             response = self.http_client.get(list_url, encoding=self.encoding)
@@ -337,6 +349,10 @@ class IbarakiScraper(AbstractPrefectureScraper):
         Raises:
             SessionError: セッション初期化に失敗した場合
         """
+        # セッションが不要な場合は何もしない
+        if not self.config["scraping"]["session"]["required"]:
+            return
+
         try:
             # 検索フォームページにアクセス
             search_form_url = self.base_url + self.config["scraping"]["urls"]["search_form"].format(

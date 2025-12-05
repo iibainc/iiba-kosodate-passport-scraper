@@ -1,4 +1,4 @@
-"""茨城県の店舗情報パーサー"""
+"""愛知県の店舗情報パーサー"""
 
 import re
 from datetime import datetime
@@ -14,15 +14,24 @@ from ..base import BaseParser
 logger = get_logger(__name__)
 
 
-class IbarakiParser(BaseParser):
-    """茨城県の店舗情報パーサー"""
+class AichiParser(BaseParser):
+    """
+    愛知県の店舗情報パーサー
+
+    TODO: 愛知県のHTMLから店舗情報を抽出するロジックを実装
+
+    以下のメソッドを愛知県のHTML構造に合わせて修正：
+    - _extract_shop_name(): 店舗名の抽出
+    - _extract_field(): 各フィールドの抽出
+
+    参考: src/features/scraping/parsers/prefectures/ibaraki_parser.py
+    """
 
     # 除外する汎用タイトル
     GENERIC_TITLES = [
         "協賛店検索",
         "市町村を複数選択",
-        "いばらきKids Club",
-        "いばらき子育て家庭優待制度",
+        # TODO: 愛知県のサイト固有の汎用タイトルを追加
     ]
 
     # 店名のキー候補
@@ -40,7 +49,7 @@ class IbarakiParser(BaseParser):
         "店舗・事業所名",
     ]
 
-    def __init__(self, prefecture_code: str = "08", prefecture_name: str = "茨城県") -> None:
+    def __init__(self, prefecture_code: str = "23", prefecture_name: str = "愛知県") -> None:
         """
         Args:
             prefecture_code: 都道府県コード
@@ -75,11 +84,13 @@ class IbarakiParser(BaseParser):
                 return None
 
             # テーブルデータを抽出
-            table_data = self.extract_table_data(soup, "table")
+            # div.detail_box内のtableを対象にする
+            table_data = self.extract_table_data(soup, "div.detail_box table")
             data.update(table_data)
 
             # 定義リストデータを抽出
-            dl_data = self.extract_dl_data(soup, "dl")
+            # div.detail_box内のdlを対象にする
+            dl_data = self.extract_dl_data(soup, "div.detail_box dl")
             data.update(dl_data)
 
             # 店舗オブジェクトを構築
@@ -103,7 +114,15 @@ class IbarakiParser(BaseParser):
             Optional[str]: 店名（見つからない場合はNone）
         """
         # h4, h1, h2などの見出しから探す
-        for selector in ["h4", "h1", "h2", ".title", ".page-title", ".shop-name"]:
+        # div.detail_box内のh3, h2, h1を優先
+        for selector in [
+            "div.detail_box h3",
+            "div.detail_box h2",
+            "div.detail_box h1",
+            ".title",
+            ".page-title",
+            ".shop-name",
+        ]:
             element = soup.select_one(selector)
             if element:
                 text = normalize_text(element.get_text())

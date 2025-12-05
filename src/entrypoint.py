@@ -1,4 +1,5 @@
 """CLIエントリーポイント"""
+
 import argparse
 import sys
 
@@ -16,9 +17,7 @@ def main() -> int:
     Returns:
         int: 終了コード（0: 成功, 1: 失敗）
     """
-    parser = argparse.ArgumentParser(
-        description="子育て支援パスポート加盟店スクレイピングツール"
-    )
+    parser = argparse.ArgumentParser(description="子育て支援パスポート加盟店スクレイピングツール")
 
     parser.add_argument(
         "--prefecture",
@@ -77,9 +76,7 @@ def main() -> int:
             orchestrator.run_prefecture_scraping(args.prefecture)
         else:
             # デフォルト: 設定ファイルの対象都道府県をすべて実行
-            logger.info(
-                "No specific prefecture specified, running all target prefectures"
-            )
+            logger.info("No specific prefecture specified, running all target prefectures")
             orchestrator.run_all_target_prefectures()
 
         logger.info("Scraping application completed successfully")
