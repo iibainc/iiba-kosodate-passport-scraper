@@ -1,7 +1,7 @@
 services:
   # Firestore Emulator
   firestore:
-    image: google/cloud-sdk:latest
+    image: google/cloud-sdk:480.0.0
     command: >
       gcloud emulators firestore start --host-port=0.0.0.0:8080 --project=local-dev
     ports:
@@ -11,8 +11,7 @@ services:
     volumes:
       - firestore-data:/opt/data
 
-  # Firestore UI (管理画面)
-  # 注意: Firestore Emulator UIのDockerイメージは利用できないため、一時的に無効化
+ # 注意: Firestore Emulator UIのDockerイメージは利用できないため、一時的に無効化
   # 必要に応じて、Firebase CLIのエミュレータUIを使用してください
   # firestore-ui:
   #   image: peterhdd/firestore-emulator-ui:latest

@@ -148,7 +148,3 @@ def main():
         print(f"  Error fetching history: {e}")
 
     print("\nDone.")
-
-
-if __name__ == "__main__":
-    main()

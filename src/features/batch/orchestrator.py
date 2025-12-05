@@ -8,8 +8,9 @@ from ...shared.http.client import HTTPClient
 from ...shared.logging.config import get_logger
 from ..geocoding.services.geocoding_service import GeocodingService
 from ..notifications.providers.slack_notifier import SlackNotifier
-from ..scraping.scrapers.prefectures.aichi import AichiScraper
+from ..scraping.scrapers.prefecture.aichi import AichiScraper
 from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
+from ..scraping.scrapers.prefectures.kyoto import KyotoScraper
 from ..scraping.scrapers.prefectures.nara import NaraScraper
 from ..scraping.scrapers.prefectures.osaka import OsakaScraper
 from ..scraping.scrapers.prefectures.tokyo_csv_scraper import TokyoCsvScraper
@@ -116,6 +117,34 @@ class BatchOrchestrator:
 
         logger.info(f"Tokyo scraping job completed: {result.status.value}")
 
+    def run_kyoto_scraping(self) -> None:
+        """京都府のスクレイピングジョブを実行"""
+        logger.info("Starting Kyoto scraping job")
+
+        # HTTPクライアントを作成
+        http_client = HTTPClient(
+            timeout=self.settings.scraping_timeout,
+            max_retries=self.settings.scraping_retry,
+            user_agent=self.settings.scraping_user_agent,
+        )
+
+        # スクレイパーを作成
+        scraper = KyotoScraper(http_client=http_client)
+
+        # ジョブを実行
+        job = PrefectureScrapingJob(
+            scraper=scraper,
+            geocoding_service=self.geocoding_service,
+            shop_repository=self.shop_repository,
+            history_repository=self.history_repository,
+            progress_repository=self.progress_repository,
+            slack_notifier=self.slack_notifier,
+        )
+
+        result = job.execute()
+
+        logger.info(f"Kyoto scraping job completed: {result.status.value}")
+
     def run_prefecture_scraping(self, prefecture_code: str) -> None:
         """
         指定された都道府県のスクレイピングジョブを実行
@@ -132,6 +161,8 @@ class BatchOrchestrator:
             self.run_ibaraki_scraping()
         elif prefecture_code == "13":
             self.run_tokyo_scraping()
+        elif prefecture_code == "26":
+            self.run_kyoto_scraping()
         elif prefecture_code == "23":
             self.run_aichi_scraping()
         elif prefecture_code == "29":

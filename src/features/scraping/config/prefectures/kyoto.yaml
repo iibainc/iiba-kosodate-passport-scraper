@@ -1,0 +1,41 @@
+prefecture:
+  code: "26"
+  name: "京都府"
+  name_en: "kyoto"
+
+scraping:
+  base_url: "https://mamop.jp/"
+  encoding: "utf-8"
+
+  urls:
+    # 検索トップ: https://mamop.jp/spot
+    search_form: "spot/"
+    
+    # リストページ: https://mamop.jp/spot/page=1
+    list_page: "spot/page/{page}/"
+    
+    # 【修正箇所】ダブルクォーテーション(")をシングルクォーテーション(')に変更
+    detail_pattern: '\d{8}/\d+'
+
+  pagination:
+    start_page: 1
+    end_page: 300 
+    auto_detect: true
+    max_empty_pages: 3
+
+  session:
+    required: false
+    token_pattern: "" 
+
+  selectors:
+    shop_name:
+      - ".detail_name h3"
+      - "h3"
+      - "h1"
+    
+    table: "table tr"
+    dl: "dl"
+
+  rate_limit:
+    sleep_min: 1.0
+    sleep_max: 2.0
