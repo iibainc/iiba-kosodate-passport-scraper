@@ -9,6 +9,7 @@ from ...shared.logging.config import get_logger
 from ..geocoding.services.geocoding_service import GeocodingService
 from ..notifications.providers.slack_notifier import SlackNotifier
 from ..scraping.scrapers.prefectures.aichi import AichiScraper
+from ..scraping.scrapers.prefectures.hyogo import HyogoScraper
 from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
 from ..scraping.scrapers.prefectures.nara import NaraScraper
 from ..scraping.scrapers.prefectures.osaka import OsakaScraper
@@ -138,6 +139,8 @@ class BatchOrchestrator:
             self.run_nara_scraping()
         elif prefecture_code == "27":
             self.run_osaka_scraping()
+        elif prefecture_code == "28":
+            self.run_hyogo_scraping()
         else:
             raise ValueError(
                 f"Unsupported prefecture code: {prefecture_code}. "
@@ -227,6 +230,34 @@ class BatchOrchestrator:
         result = job.execute()
 
         logger.info(f"Aichi scraping job completed: {result.status.value}")
+
+    def run_hyogo_scraping(self) -> None:
+        """兵庫県のスクレイピングジョブを実行"""
+        logger.info("Starting Hyogo scraping job")
+
+        # HTTPクライアントを作成
+        http_client = HTTPClient(
+            timeout=self.settings.scraping_timeout,
+            max_retries=self.settings.scraping_retry,
+            user_agent=self.settings.scraping_user_agent,
+        )
+
+        # スクレイパーを作成
+        scraper = HyogoScraper(http_client=http_client)
+
+        # ジョブを実行
+        job = PrefectureScrapingJob(
+            scraper=scraper,
+            geocoding_service=self.geocoding_service,
+            shop_repository=self.shop_repository,
+            history_repository=self.history_repository,
+            progress_repository=self.progress_repository,
+            slack_notifier=self.slack_notifier,
+        )
+
+        result = job.execute()
+
+        logger.info(f"Hyogo scraping job completed: {result.status.value}")
 
     def run_all_target_prefectures(self) -> None:
         """設定で指定された全都道府県のスクレイピングを実行"""
