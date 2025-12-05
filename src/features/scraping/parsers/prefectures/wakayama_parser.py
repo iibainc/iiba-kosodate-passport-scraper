@@ -1,13 +1,12 @@
 """和歌山県の店舗情報パーサー"""
 
-import re
 from datetime import datetime
 from typing import Any, Optional
 
 from bs4 import BeautifulSoup
 
 from .....shared.logging.config import get_logger
-from .....shared.utils.text import extract_phone_number, extract_postal_code, normalize_text
+from .....shared.utils.text import extract_postal_code, normalize_text
 from ...domain.models import Shop
 from ..base import BaseParser
 
