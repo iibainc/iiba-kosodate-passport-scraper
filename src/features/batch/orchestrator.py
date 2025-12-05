@@ -13,6 +13,7 @@ from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
 from ..scraping.scrapers.prefectures.nara import NaraScraper
 from ..scraping.scrapers.prefectures.osaka import OsakaScraper
 from ..scraping.scrapers.prefectures.tokyo_csv_scraper import TokyoCsvScraper
+from ..scraping.scrapers.prefectures.wakayama import WakayamaScraper
 from ..storage.clients.firestore_client import FirestoreClient
 from ..storage.repositories.history_repository import HistoryRepository
 from ..storage.repositories.progress_repository import ProgressRepository
@@ -138,6 +139,8 @@ class BatchOrchestrator:
             self.run_nara_scraping()
         elif prefecture_code == "27":
             self.run_osaka_scraping()
+        elif prefecture_code == "30":
+            self.run_wakayama_scraping()
         else:
             raise ValueError(
                 f"Unsupported prefecture code: {prefecture_code}. "
@@ -227,6 +230,34 @@ class BatchOrchestrator:
         result = job.execute()
 
         logger.info(f"Aichi scraping job completed: {result.status.value}")
+
+    def run_wakayama_scraping(self) -> None:
+        """和歌山県のスクレイピングジョブを実行"""
+        logger.info("Starting Wakayama scraping job")
+
+        # HTTPクライアントを作成
+        http_client = HTTPClient(
+            timeout=self.settings.scraping_timeout,
+            max_retries=self.settings.scraping_retry,
+            user_agent=self.settings.scraping_user_agent,
+        )
+
+        # スクレイパーを作成
+        scraper = WakayamaScraper(http_client=http_client)
+
+        # ジョブを実行
+        job = PrefectureScrapingJob(
+            scraper=scraper,
+            geocoding_service=self.geocoding_service,
+            shop_repository=self.shop_repository,
+            history_repository=self.history_repository,
+            progress_repository=self.progress_repository,
+            slack_notifier=self.slack_notifier,
+        )
+
+        result = job.execute()
+
+        logger.info(f"Wakayama scraping job completed: {result.status.value}")
 
     def run_all_target_prefectures(self) -> None:
         """設定で指定された全都道府県のスクレイピングを実行"""

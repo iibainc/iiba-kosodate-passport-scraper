@@ -1,0 +1,21 @@
+prefecture:
+  code: "30"
+  name: "和歌山県"
+
+scraping:
+  base_url: "https://wakayama-kosodate.com"
+  encoding: "utf-8"
+  
+  rate_limit:
+    sleep_min: 1.0
+    sleep_max: 2.0
+
+  urls:
+    list_page: "/searchshop/user/u_result.php?page={page}"
+    detail_pattern: "u_detail\\.php\\?shop_no=\\d+"
+
+  pagination:
+    start_page: 1
+    end_page: 1  # All items are on the first page (server-side rendering with client-side DataTables or ignored page param)
+    auto_detect: false
+    max_empty_pages: 3
