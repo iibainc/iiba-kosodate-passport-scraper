@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urlparse
 import yaml
 from tqdm import tqdm
 
-from .....shared.exceptions.errors import HTTPError, ParsingError, ScraperError, SessionError
+from .....shared.exceptions.errors import HTTPError, ParsingError, ScraperError
 from .....shared.http.client import HTTPClient
 from .....shared.http.rate_limiter import RateLimiter
 from .....shared.logging.config import get_logger
