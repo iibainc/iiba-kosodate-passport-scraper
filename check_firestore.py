@@ -3,6 +3,8 @@
 import argparse
 import os
 import sys
+from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 
 # プロジェクトルートをPythonパスに追加
@@ -10,55 +12,25 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from google.cloud import firestore
-from src.infrastructure.config.settings import Settings
-from src.features.scraping.domain.enums import PrefectureCode, PREFECTURE_NAMES
-from src.features.storage.repositories.shop_repository import ShopRepository
 from src.features.storage.clients.firestore_client import FirestoreClient
+from src.features.storage.repositories.shop_repository import ShopRepository
+from src.infrastructure.config.settings import Settings
 
 
-def get_prefecture_name(code: str) -> str:
-    """都道府県コードから都道府県名を取得"""
-    try:
-        pref_code = PrefectureCode(code)
-        return PREFECTURE_NAMES.get(pref_code, f"不明({code})")
-    except ValueError:
-        return f"不明({code})"
-
-
-def get_all_prefecture_stats(firestore_client: FirestoreClient, shops_collection_name: str) -> dict[str, int]:
-    """全都道府県の店舗数を取得"""
-    stats = {}
-    for pref_code in PrefectureCode:
-        code = pref_code.value
-        count = firestore_client.count_documents(
-            shops_collection_name,
-            filters=[("prefecture_code", "==", code)]
-        )
-        if count > 0:
-            stats[code] = count
-    return stats
+def parse_args():
+    """コマンドライン引数をパース"""
+    parser = argparse.ArgumentParser(description="Firestore data checker")
+    parser.add_argument(
+        "-p", "--prefecture", type=str, help="Filter by prefecture code (e.g., 29)"
+    )
+    parser.add_argument(
+        "-l", "--limit", type=int, default=10, help="Limit number of records to show (default: 10)"
+    )
+    return parser.parse_args()
 
 
 def main():
-    """メイン関数"""
-    parser = argparse.ArgumentParser(description="Firestoreのデータを確認するスクリプト")
-    parser.add_argument(
-        "--prefecture",
-        "-p",
-        type=str,
-        help="都道府県コード（例: 23, 28）。指定しない場合は全都道府県の統計を表示",
-    )
-    parser.add_argument(
-        "--limit",
-        "-l",
-        type=int,
-        default=15,
-        help="表示する店舗数の上限（デフォルト: 15）",
-    )
-
-    args = parser.parse_args()
-
-    # 設定を読み込み
+    args = parse_args()
     settings = Settings()
 
     # Firestoreエミュレータの設定を環境変数に反映
@@ -71,100 +43,111 @@ def main():
     # Firestoreクライアントを初期化
     firestore_client = FirestoreClient(
         project_id=settings.gcp_project_id,
-        database_id=settings.firestore_database_id
+        database_id=settings.firestore_database_id,
     )
     db = firestore_client.client
 
-    # 実際のコレクション名を使用（ShopRepositoryで定義されているもの）
-    shops_collection_name = ShopRepository.COLLECTION_NAME
+    # コレクション名
+    shops_collection = ShopRepository.COLLECTION_NAME
+    history_collection = settings.firestore_history_collection
 
-    # shopsコレクションの件数を正確にカウント
-    shops_count = firestore_client.count_documents(shops_collection_name)
-    print(f"\n{shops_collection_name} コレクション: {shops_count}件")
+    print("\n" + "=" * 60)
+    print(f"Firestore Data Check Report - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 60)
 
-    # 都道府県コードが指定されている場合
+    # 1. 店舗データの統計
+    print(f"\n[Collection: {shops_collection}]")
+    
+    # 全体の件数
+    total_count = firestore_client.count_documents(shops_collection)
+    print(f"  Total Shops: {total_count}")
+
+    # 都道府県ごとの集計（件数が多い場合は時間がかかる可能性があるため、簡易的な集計にするか検討）
+    # ここでは、もしprefecture引数がなければ全件集計、あればその都道府県のみカウント
     if args.prefecture:
-        prefecture_code = args.prefecture
-        prefecture_name = get_prefecture_name(prefecture_code)
-
-        # 指定された都道府県の店舗数をカウント
-        prefecture_count = firestore_client.count_documents(
-            shops_collection_name,
-            filters=[("prefecture_code", "==", prefecture_code)]
+        pref_count = firestore_client.count_documents(
+            shops_collection, filters=[("prefecture_code", "==", args.prefecture)]
         )
-        print(f"  {prefecture_name}（{prefecture_code}）: {prefecture_count}件")
-
-        # コレクション参照を取得
-        shops_ref = db.collection(shops_collection_name)
-
-        # 最新の店舗データを5件取得
-        print("\n=== 最新の店舗データ（5件） ===")
-        for doc in shops_ref.order_by("scraped_at", direction=firestore.Query.DESCENDING).limit(5).stream():
-            data = doc.to_dict()
-            print(f"  - {doc.id}: {data.get('name')} ({data.get('address', 'N/A')}) [都道府県: {data.get('prefecture_code', 'N/A')}]")
-
-        # 指定された都道府県の最新店舗データを取得
-        print(f"\n=== {prefecture_name}の最新店舗データ（{args.limit}件） ===")
-        prefecture_ref = shops_ref.where("prefecture_code", "==", prefecture_code)
-        count = 0
-        for doc in prefecture_ref.order_by("scraped_at", direction=firestore.Query.DESCENDING).limit(args.limit).stream():
-            data = doc.to_dict()
-            print(f"  {count+1:2d}. {doc.id}: {data.get('name')} ({data.get('address', 'N/A')}) [更新: {data.get('scraped_at')}]")
-            count += 1
-
-        # scraping_historyコレクションの件数を確認
-        history_ref = db.collection(settings.firestore_history_collection)
-        history_count = len(list(history_ref.limit(100).stream()))
-        print(f"\n{settings.firestore_history_collection} コレクション: {history_count}件")
-
-        # 最新の履歴を5件取得
-        print("\n=== 最新のスクレイピング履歴（5件） ===")
-        for doc in history_ref.order_by("started_at", direction=firestore.Query.DESCENDING).limit(5).stream():
-            data = doc.to_dict()
-            print(f"  - {doc.id}: {data.get('prefecture_name')} ({data.get('prefecture_code', 'N/A')}) - {data.get('status')} ({data.get('shops_count', 0)}件)")
-
-        # 指定された都道府県の履歴を確認
-        print(f"\n=== {prefecture_name}のスクレイピング履歴 ===")
-        prefecture_history = list(history_ref.where("prefecture_code", "==", prefecture_code).order_by("started_at", direction=firestore.Query.DESCENDING).limit(5).stream())
-        if prefecture_history:
-            for doc in prefecture_history:
-                data = doc.to_dict()
-                print(f"  - {doc.id}: {data.get('status')} - {data.get('shops_count', 0)}件 (開始: {data.get('started_at')})")
-        else:
-            print("  履歴が見つかりませんでした")
-
+        print(f"  Prefecture {args.prefecture}: {pref_count}")
     else:
-        # 全都道府県の統計を表示
-        print("\n=== 都道府県別店舗数 ===")
-        stats = get_all_prefecture_stats(firestore_client, shops_collection_name)
-        if stats:
-            # 都道府県コードでソート
-            sorted_stats = sorted(stats.items(), key=lambda x: x[0])
-            for code, count in sorted_stats:
-                name = get_prefecture_name(code)
-                print(f"  {name}（{code}）: {count}件")
-        else:
-            print("  データが見つかりませんでした")
+        # 都道府県ごとの内訳を表示したいが、count_documentsではgroup byができないため
+        # streamで取得して集計するのはコストが高い。
+        # 代わりに、最新のドキュメントからいくつかサンプリングして傾向を見るか、
+        # ここではシンプルに最新データを表示することに注力する。
+        pass
 
-        # 最新の店舗データを5件取得
-        shops_ref = db.collection(shops_collection_name)
-        print("\n=== 最新の店舗データ（5件） ===")
-        for doc in shops_ref.order_by("scraped_at", direction=firestore.Query.DESCENDING).limit(5).stream():
+    # 2. 最新の店舗データ表示
+    print(f"\n[Latest Shops (Limit: {args.limit})]")
+    shops_ref = db.collection(shops_collection)
+    
+    query = shops_ref.order_by("scraped_at", direction=firestore.Query.DESCENDING)
+    
+    if args.prefecture:
+        # 複合インデックスが必要になる可能性があるため、フィルタ時はscraped_atソートを注意
+        # エミュレータなら自動で作られる場合もあるが、まずはシンプルにフィルタのみにするか、
+        # クライアントサイドでソートするか。
+        # ここでは where -> order_by を試みる
+        query = shops_ref.where("prefecture_code", "==", args.prefecture).order_by(
+            "scraped_at", direction=firestore.Query.DESCENDING
+        )
+
+    try:
+        docs = list(query.limit(args.limit).stream())
+        if not docs:
+            print("  No data found.")
+        
+        for i, doc in enumerate(docs, 1):
             data = doc.to_dict()
-            pref_code = data.get('prefecture_code', 'N/A')
-            pref_name = get_prefecture_name(pref_code) if pref_code != 'N/A' else 'N/A'
-            print(f"  - {doc.id}: {data.get('name')} ({data.get('address', 'N/A')}) [{pref_name} ({pref_code})]")
+            scraped_at = data.get("scraped_at")
+            if isinstance(scraped_at, datetime):
+                scraped_at = scraped_at.strftime("%Y-%m-%d %H:%M:%S")
+            
+            print(f"  {i}. [{data.get('prefecture_code')}] {data.get('name')}")
+            print(f"     ID: {doc.id}")
+            print(f"     Address: {data.get('address', 'N/A')}")
+            print(f"     Updated: {scraped_at}")
+            print("     ---")
 
-        # scraping_historyコレクションの件数を確認
-        history_ref = db.collection(settings.firestore_history_collection)
-        history_count = len(list(history_ref.limit(100).stream()))
-        print(f"\n{settings.firestore_history_collection} コレクション: {history_count}件")
+    except Exception as e:
+        print(f"  Error fetching shops: {e}")
+        print("  (If using filter + sort, composite index might be missing)")
 
-        # 最新の履歴を5件取得
-        print("\n=== 最新のスクレイピング履歴（5件） ===")
-        for doc in history_ref.order_by("started_at", direction=firestore.Query.DESCENDING).limit(5).stream():
+    # 3. スクレイピング履歴
+    print(f"\n[Collection: {history_collection}]")
+    history_ref = db.collection(history_collection)
+    
+    h_query = history_ref.order_by("started_at", direction=firestore.Query.DESCENDING)
+    if args.prefecture:
+        h_query = history_ref.where("prefecture_code", "==", args.prefecture).order_by(
+            "started_at", direction=firestore.Query.DESCENDING
+        )
+
+    try:
+        h_docs = list(h_query.limit(args.limit).stream())
+        if not h_docs:
+            print("  No history found.")
+
+        for i, doc in enumerate(h_docs, 1):
             data = doc.to_dict()
-            print(f"  - {doc.id}: {data.get('prefecture_name')} ({data.get('prefecture_code', 'N/A')}) - {data.get('status')} ({data.get('shops_count', 0)}件)")
+            started_at = data.get("started_at")
+            if isinstance(started_at, datetime):
+                started_at = started_at.strftime("%Y-%m-%d %H:%M:%S")
+            
+            status = data.get("status", "unknown")
+            shops_count = data.get("total_shops", 0)
+            new_shops = data.get("new_shops", 0)
+            
+            print(f"  {i}. {started_at} - {data.get('prefecture_name')} ({data.get('prefecture_code')})")
+            print(f"     Status: {status}")
+            print(f"     Result: Total={shops_count}, New={new_shops}")
+            if data.get("errors"):
+                print(f"     Errors: {len(data['errors'])}")
+            print("     ---")
+
+    except Exception as e:
+        print(f"  Error fetching history: {e}")
+
+    print("\nDone.")
 
 
 if __name__ == "__main__":
