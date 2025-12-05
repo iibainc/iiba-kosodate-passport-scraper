@@ -7,9 +7,9 @@ from tqdm import tqdm
 
 from ....shared.exceptions.errors import GeocodingError
 from ....shared.logging.config import get_logger
+from ...scraping.domain.models import Shop
 from ..providers.cache_geocoder import CacheGeocoder
 from ..providers.google_maps_geocoder import GoogleMapsGeocoder
-from ...scraping.domain.models import Shop
 
 logger = get_logger(__name__)
 
