@@ -9,7 +9,6 @@ from ...shared.logging.config import get_logger
 from ..geocoding.services.geocoding_service import GeocodingService
 from ..notifications.providers.slack_notifier import SlackNotifier
 from ..scraping.scrapers.prefectures.aichi import AichiScraper
-from ..scraping.scrapers.prefectures.aichi import AichiScraper
 from ..scraping.scrapers.prefectures.hyogo import HyogoScraper
 from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
 from ..scraping.scrapers.prefectures.tokyo_csv_scraper import TokyoCsvScraper

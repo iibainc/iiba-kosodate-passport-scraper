@@ -65,7 +65,7 @@ class HyogoScraper(AbstractPrefectureScraper):
     ) -> list[Shop]:
         """
         店舗情報をスクレイピング
-        
+
         兵庫県はAPIで全データを一度に取得可能
 
         Args:
@@ -104,7 +104,7 @@ class HyogoScraper(AbstractPrefectureScraper):
                 detail_url = f"{self.base_url}/HKO_APP/view/shopdetail.html?item_id={item_id}"
 
                 shop = self.parser.parse(item, detail_url)
-                
+
                 if shop:
                     all_shops.append(shop)
                     current_batch.append(shop)

@@ -57,7 +57,7 @@ class HyogoParser(BaseParser):
 
             # 住所
             address = item.get("address", "")
-            
+
             # 郵便番号
             postal_code = item.get("zip_code", "")
 
@@ -101,7 +101,7 @@ class HyogoParser(BaseParser):
                 benefits=benefits_str,
                 description=item.get("memo", ""),
                 parking=None,  # APIには駐車場情報が明確にない
-                category=None, # カテゴリはIDで返ってくるがマッピングが必要（今回は省略）
+                category=None,  # カテゴリはIDで返ってくるがマッピングが必要（今回は省略）
                 genre=None,
                 latitude=float(latitude) if latitude is not None else None,
                 longitude=float(longitude) if longitude is not None else None,
