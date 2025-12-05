@@ -1,0 +1,21 @@
+prefecture:
+  code: "27"
+  name: "大阪府"
+  name_en: "osaka"
+
+scraping:
+  base_url: "https://api.osaka-pass.jp/shop/list/"
+  encoding: "utf-8"
+
+  # API parameters
+  api:
+    group: "1"  # 1: まいど子 (Child rearing), 2: 縁ジョイ (Marriage support)
+
+  pagination:
+    start_index: 0
+    batch_size: 10  # API default seems to be 10, but we can check if it accepts more
+    auto_detect: true
+
+  rate_limit:
+    sleep_min: 1.0
+    sleep_max: 2.0
