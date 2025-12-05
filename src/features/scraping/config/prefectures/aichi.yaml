@@ -1,0 +1,44 @@
+prefecture:
+  code: "23"  # 都道府県コード
+  name: "愛知県"  # 都道府県名
+  name_en: "aichi"  # 英語名
+
+scraping:
+  # 愛知県の子育て支援パスポートサイトのベースURL
+  base_url: "https://hagumin-net.pref.aichi.jp"
+
+  # 文字エンコーディング
+  encoding: "utf-8"
+
+  urls:
+    search_form: "/premium/search?category=kosodate"
+    # pageは0始まり
+    list_page: "/premium/list/?c203=1&c217=1&c220=1&c228=1&c233=1&c234=1&c342=1&c361=1&c362=1&c204=1&c206=1&c215=1&c219=1&c226=1&c229=1&c230=1&c302=1&c238=1&c208=1&c232=1&c235=1&c237=1&c424=1&c425=1&c427=1&c205=1&c216=1&c222=1&c223=1&c224=1&c441=1&c442=1&c445=1&c446=1&c447=1&c211=1&c236=1&c202=1&c209=1&c210=1&c212=1&c213=1&c225=1&c227=1&c501=1&c201=1&c207=1&c214=1&c221=1&c231=1&c561=1&c562=1&c563=1&c101=1&c102=1&c103=1&c104=1&c105=1&c106=1&c107=1&c108=1&c109=1&c110=1&c111=1&c112=1&c113=1&c114=1&c115=1&c116=1&qy=&hq=&page={page}"
+    detail_pattern: "/premium/detail/\\d+"
+
+  pagination:
+    start_page: 0
+    # 【方法A】固定ページ数（事前に総ページ数がわかる場合）
+    end_page: 1466
+    auto_detect: false
+    # 【方法B】自動検出（ページ数が不明な場合）
+    # auto_detect: true
+    # max_empty_pages: 3
+
+  session:
+    # セッショントークンは不要
+    required: false
+    token_pattern: "session_id=([A-Za-z0-9_-]+)"
+
+  selectors:
+    shop_name:
+      - "div.detail_box h3"
+      - "div.detail_box h2"
+      - "h1"
+    table: "div.detail_box table tr"
+    dl: "div.detail_box dl"
+
+  rate_limit:
+    # サイトへの負荷を考慮してレート制限を設定
+    sleep_min: 1.0
+    sleep_max: 2.0

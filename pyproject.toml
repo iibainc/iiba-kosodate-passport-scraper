@@ -57,7 +57,7 @@ addopts = "-v --cov=src --cov-report=html --cov-report=term-missing"
 
 [tool.flake8]
 max-line-length = 100
-extend-ignore = ["E203", "E266", "E501", "W503"]
+extend-ignore = ["E203", "E266", "E501", "W503", "D400", "D104", "D205", "D105"]
 exclude = [
     ".git",
     "__pycache__",

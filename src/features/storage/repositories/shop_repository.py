@@ -1,7 +1,7 @@
 """店舗リポジトリ"""
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
 from ....shared.exceptions.errors import StorageError, ValidationError
 from ....shared.logging.config import get_logger
