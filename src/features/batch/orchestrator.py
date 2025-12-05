@@ -3,9 +3,9 @@
 from typing import Optional
 
 from ..scraping.scrapers.prefectures.ibaraki import IbarakiScraper
+from ..scraping.scrapers.prefectures.kyoto import KyotoScraper
 from ..scraping.scrapers.prefectures.nara import NaraScraper
 from ..scraping.scrapers.prefectures.osaka import OsakaScraper
-from ..scraping.scrapers.prefectures.kyoto import KyotoScraper
 from ..scraping.scrapers.prefectures.tokyo_csv_scraper import TokyoCsvScraper
 from ..storage.clients.firestore_client import FirestoreClient
 from ..storage.repositories.history_repository import HistoryRepository
