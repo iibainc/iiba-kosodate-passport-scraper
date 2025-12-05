@@ -1,0 +1,37 @@
+prefecture:
+  code: "25"
+  name: "滋賀県"
+  name_en: "shiga"
+
+scraping:
+  base_url: "https://www.hugnavi.net/cheer"
+  encoding: "utf-8"
+
+  urls:
+    search_form: "/shop/list"
+    
+    list_page: "/shop/list/{page}"
+    
+    detail_pattern: '/shop/detail/\d+'
+
+  pagination:
+    start_page: 1
+    end_page: 200 
+    auto_detect: true
+    max_empty_pages: 3
+
+  session:
+    required: false
+    token_pattern: "" 
+
+  selectors:
+    shop_name:
+      - "h2"
+      - "h1"
+    
+    table: "table tr"
+    dl: "dl"
+
+  rate_limit:
+    sleep_min: 1.0
+    sleep_max: 2.0
