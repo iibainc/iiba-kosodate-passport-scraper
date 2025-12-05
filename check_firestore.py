@@ -3,10 +3,11 @@
 from google.cloud import firestore
 
 # Firestoreクライアントを初期化
-db = firestore.Client(project="iiba-staging", database="(default)")
+# db = firestore.Client(project="iiba-staging", database="(default)")
+db = firestore.Client(project="local-dev", database="(default)")
 
 # shopsコレクションの件数を確認
-shops_ref = db.collection("shops")
+shops_ref = db.collection("kosodate_passport_shops")
 shops_count = len(list(shops_ref.limit(1000).stream()))
 print(f"shops コレクション: {shops_count}件")
 

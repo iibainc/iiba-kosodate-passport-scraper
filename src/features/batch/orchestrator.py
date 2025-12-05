@@ -162,7 +162,7 @@ class BatchOrchestrator:
         else:
             raise ValueError(
                 f"Unsupported prefecture code: {prefecture_code}. "
-                f"Currently, only Ibaraki (08) and Tokyo (13) are supported."
+                f"Currently, only Ibaraki (08) , Tokyo (13) and Kyoto (26) are supported."
             )
 
     def run_all_target_prefectures(self) -> None:
